@@ -10,7 +10,7 @@ console = Console()
 def ask_gemini(prompt_text):
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     headers = {"Content-Type": "application/json"}
-    params = {"key": "AIzaSyB5NnM2PjjtyV7puN9DzU7p8_Vc43dUTzs"}
+    params = {"key": ""}
     data = {
         "contents": [
             {
