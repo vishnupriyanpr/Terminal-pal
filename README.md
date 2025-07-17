@@ -4,7 +4,7 @@
 > Powered by **Gemini 2.0** • Built with ❤️ by **Vishnupriyan**
 
 ![Built with Gemini](https://img.shields.io/badge/Built%20with-Gemini%202.0-blueviolet?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 ---
 
