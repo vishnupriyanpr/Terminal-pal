@@ -19,13 +19,13 @@ Whether you're debugging, learning, or just exploring ideas, Terminal-Pal turns 
 
 ##  Features 🔥
 
-- 🌐 **Powered by Gemini 2.0** (via Google Generative Language API)
-- 🎨 Beautiful CLI output using `rich`
-- ✨ Smartly formatted and animated responses
-- 💻 Code block rendering with syntax highlighting
-- 📋 Copy-to-clipboard functionality for code
-- 🧠 Conversations with memory (scroll-friendly)
-- 😎 Portable single-file script — plug and play
+-  **Powered by Gemini 2.0** (via Google Generative Language API)
+-  Beautiful CLI output using `rich`
+-  Smartly formatted and animated responses
+-  Code block rendering with syntax highlighting
+-  Copy-to-clipboard functionality for code
+-  Conversations with memory (scroll-friendly)
+-  Portable single-file script — plug and play
 
 ---
 
@@ -71,7 +71,7 @@ pip install rich requests pyperclip
 Edit `terminal_pal.py` and replace:
 
 ```python
-API_KEY = ""
+API_KEY = "PUT_YOUR_API_KEY_HERE"
 ```
 
 with your API key from [Google AI Studio](https://makersuite.google.com/).
@@ -111,7 +111,7 @@ Licensed under the [MIT License](LICENSE).
 
 ##  Credits ✨
 
-Built by **Vishnupriyan**  
+Built by **Vishnupriyan P R**  
 If you like this, feel free to ⭐ the repo or fork it!  
 Got feature ideas? Hit me up or open an issue!
 
