@@ -1,4 +1,4 @@
-#  Terminal-Pal: Your AI Chat Companion in the Terminal
+#  Terminal-Pal : Your AI Chat Companion in the Terminal
 
 > _"An elegant, no-nonsense AI-powered assistant for your command-line grind."_  
 > Powered by **Gemini 2.0** • Built with ❤️ by **Vishnupriyan**
@@ -85,8 +85,9 @@ python terminal_pal.py
 You’re now ready to chat with your AI pal right from your terminal!
 
 ---
+## 📽️ Execution Demo
 
-##  How it works 💻
+[![Watch Execution Video](https://imgur.com/YOUR_PREVIEW_IMG.png)](https://github.com/user-attachments/assets/3d4a48c7-b82c-4227-811b-f987059907b0)
 
 
 
