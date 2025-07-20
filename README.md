@@ -1,119 +1,204 @@
-#  Terminal-Pal : Your AI Chat Companion in the Terminal
+# ⚙️ AI Terminal Pal V2 – Supreme Developer Edition
 
-> _"An elegant, no-nonsense AI-powered assistant for your command-line grind."_  
-> Powered by **Gemini 2.0** • Built with ❤️ by **Vishnupriyan**
+> _"A developer-first, AI-integrated command-line assistant built for speed, context, and control."_  
+> Powered by **Gemini 2.0**, **OpenAI GPT-4o**, **Claude Opus**, and more.  
+> Crafted with ❤️ by **Vishnupriyan P R**
 
-![Built with Gemini](https://img.shields.io/badge/Built%20with-Gemini%202.0-blueviolet?style=for-the-badge)
+![Multi-Provider AI](https://img.shields.io/badge/Multi--Provider%20AI-GPT--4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral-blueviolet?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Built With](https://img.shields.io/badge/Built%20With-Python%20|%20Rich%20CLI-green?style=for-the-badge)
 
 ---
 
-##  Overview 💡
+## 🚀 Executive Overview
 
-**Terminal-Pal** is a minimalist AI assistant that lives in your terminal.  
-Built using Python, the `rich` library, and Gemini 2.0's API, it's your go-to pal when you want instant help, explanations, or code — all within your CLI.
-
-Whether you're debugging, learning, or just exploring ideas, Terminal-Pal turns your terminal into an interactive AI chat space.
+**AI Terminal Pal V2** transforms your terminal into a next-gen AI companion — built for coders, by a coder.  
+This isn’t just another CLI chatbot — it's a context-aware, multi-provider development assistant.
 
 ---
 
-##  Features 🔥
-
--  **Powered by Gemini 2.0** (via Google Generative Language API)
--  Beautiful CLI output using `rich`
--  Smartly formatted and animated responses
--  Code block rendering with syntax highlighting
--  Copy-to-clipboard functionality for code
--  Conversations with memory (scroll-friendly)
--  Portable single-file script — plug and play
-
----
-
-##  Workflow Diagram 🧠
+## 🧠 Architecture & OOP Design
 
 ```mermaid
-graph TD
-A[User Prompt] --> B[Terminal-Pal]
-B --> C[Gemini API Request]
-C --> D[Receive Text + Code]
-D --> E[Render with rich]
-E --> F[Show in Terminal]
-F --> G{Code Block Present?}
-G -- Yes --> H[Offer to Copy Code]
-G -- No --> I[Wait for Next Prompt]
+classDiagram
+class AIProvider {
+  +ask()
+  +stream()
+}
+AIProvider <|-- OpenAIProvider
+AIProvider <|-- GeminiProvider
+AIProvider <|-- ClaudeProvider
+AIProvider <|-- GroqProvider
+AIProvider <|-- MistralProvider
+
+class AITerminalPal {
+  +main()
+  -themeManager
+  -projectIntegrator
+  -navigationHelper
+}
 ```
+
+### Modular Components:
+
+- `AIProvider` subclasses for each AI backend
+- `ThemeManager` handles terminal visuals
+- `ProjectIntegrator` parses local codebase
+- `NavigationHelper` manages all `/commands`
 
 ---
 
-##  Folder Structure 📁
+## 🎨 Visual Theming System
 
-```shell
-terminal-pal/
-├── terminal_pal.py         # Main app script
-├── README.md               # Project documentation
-├── requirements.txt        # Dependencies
-```
+- 💼 **Professional** (blue-based)
+- 🌊 **Ocean**
+- 🌿 **Forest**
+- ⚫ **Minimal**
+
+Banner auto-adjusts to terminal width, with branding, model info, and project status!
 
 ---
 
-##  Installation & Setup 🛠️
-
-###  Step 1: Install Requirements 📦
+## 📁 Folder Structure
 
 ```bash
-pip install rich requests pyperclip
+ai-terminal-pal-v2/
+├── ai terminal_pal.py         # Main app 
+├── .env                    # API keys (local)
+├── README.md
+├── requirements.txt
 ```
 
-> Ensure Python 3.8+ is installed.
+---
 
-###  Step 2: Add Your Gemini API Key 🔐
+## 🔧 Installation
 
-Edit `terminal_pal.py` and replace:
-
-```python
-API_KEY = "PUT_YOUR_API_KEY_HERE"
+```bash
+git clone https://github.com/vishnupriyanpr183207/Terminal-Pal
+cd Terminal-Pal
+pip install -r requirements.txt
 ```
 
-with your API key from [Google AI Studio](https://makersuite.google.com/).
+Then add your API keys to `.env`:
 
-###  Step 3: Run the Script 🚀
+```env
+OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=...
+CLAUDE_API_KEY=...
+(You can manually enter the api keys into the terminal itself)
+```
+
+---
+
+## 💡 Example Usage
 
 ```bash
 python terminal_pal.py
 ```
 
-You’re now ready to chat with your AI pal right from your terminal!
+Sample CLI commands:
 
----
-## 📽️ Execution Demo
-
-[![Watch Execution Video](https://imgur.com/YOUR_PREVIEW_IMG.png)](https://github.com/user-attachments/assets/3d4a48c7-b82c-4227-811b-f987059907b0)
-
-
-
-And if there's code, you'll get this:
-```
-Press 'c' to copy the code above or any other key to continue
+```bash
+/setup            # Interactive config wizard
+/ask              # Ask a quick question
+/chat             # Continuous chat mode
+/attach file.py   # Attach code files for context
+/scan             # Analyze the whole repo
+/theme forest     # Switch theme
 ```
 
 ---
 
+## ⚙️ AI Feature Highlights
 
+- ✅ 5 Provider Support (GPT-4o, Claude, Gemini, Groq, Mistral)
+- 💬 Real-Time Streaming Replies
+- 📋 Auto Copy-to-Clipboard for Code Blocks
+- 🧠 File-aware prompts using `@filename.py`
+- 📦 Context Pack Builder (auto-selects relevant files)
+- 🪄 Project Scanning, Linting, Debugging, Docs Gen
+- 📊 Cost + Token Analytics Dashboard
+- ⚖️ Entire file less than 1 md, easy to import
+- ✅ Easier to put api keys, by manually entering them while configuring
+- 🗺️ Best navigation, not so complex UI
 
+---
 
+## 🧭 Command Structure
 
-
-##  License 📜
-
-Licensed under the [MIT License](LICENSE).
+| Category         | Commands                                                                 |
+|------------------|--------------------------------------------------------------------------|
+| Setup & Config   | `/setup`, `/config`, `/provider`, `/theme`                              |
+| AI Interaction   | `/ask`, `/chat`, `/generate`, `/explain`, `/improve`                    |
+| File Ops         | `/attach`, `/read`, `/write`, `/edit`, `/backup`, `/copy`, `/paste`     |
+| Project Insights | `/scan`, `/analyze`, `/deps`, `/metrics`, `/tree`                       |
+| Dev Tools        | `/test`, `/lint`, `/docs`, `/format`, `/debug`                          |
+| Reports & Export | `/export`, `/pdf`, `/history`, `/report`, `/stats`                      |
+| Navigation Help  | `/nav`, `/commands`, `/help`, `/clear`, `/exit`                         |
 
 ---
 
-##  Credits ✨
+## 📊 Performance Analytics
 
-Built by **Vishnupriyan P R**  
-If you like this, feel free to ⭐ the repo or fork it!  
-Got feature ideas? Hit me up or open an issue!
+```bash
+📈 Session Stats:
+(Sample analytics)
+- Tokens Used: 14,320
+- API Cost: $0.043 USD (Depends w.r.t to the ai plans of that time)
+- Models: GPT-4o (OpenAI)
+- Files Attached: 4
+- Commands Executed: 17
+```
 
 ---
+
+## 🛠️ Dev Utilities
+
+- 🗃️ Project Tree Visualization
+- 🧪 Unit Test Suggestions
+- 📝 Auto Documentation
+- 🔍 Code Quality Scoring
+- ⛑️ Crash Recovery with Session Restore
+
+---
+
+## 🛡️ Security & Privacy
+
+- 🔐 Local-only API key storage
+- 🧼 Rate limiting + token caps
+- 🚫 No external tracking or telemetry
+- 🧠 Smart fallback on provider failure
+
+---
+
+## 📽️ Execution Preview (Coming Soon)
+
+```bash
+> /chat
+
+User: Can you explain this Flask route?
+
+AI: Absolutely! Here's what the `@app.route()` does in this context...
+```
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 🙏 Credits
+
+Built by **[Vishnupriyan P R](https://github.com/vishnupriyanpr183207)**  
+Inspiration from CLI legends and powered by modern AI.
+
+If you found this useful, feel free to ⭐ the repo or contribute.  
+Issues, suggestions, or collabs? Hit me up!
+
+---
+
+> “From mockups to models — one continuum.”  
+> — Vishnu, a dev who codes with caffeine ☕
 
