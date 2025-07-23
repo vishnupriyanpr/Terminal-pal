@@ -1,132 +1,173 @@
-#  Terminal-Pal: Your AI Chat Companion in the Terminal
+# 🧠 AI Terminal Pal v2.0 – Supreme Developer Edition
 
-> _"An elegant, no-nonsense AI-powered assistant for your command-line grind."_  
-> Powered by **Gemini 2.0** • Built with ❤️ by **Vishnupriyan**
+> _"Your all-in-one terminal-based AI dev sidekick — engineered for speed, clarity, and control."_  
+> ✨ Powered by: **GPT‑4o**, **Claude 3 Opus**, **Gemini 1.5 Pro**, **Groq**, **Mistral**, and more.  
+> 💡 Designed & crafted with precision by **Vishnupriyan P R**
 
-![Built with Gemini](https://img.shields.io/badge/Built%20with-Gemini%202.0-blueviolet?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-brightgreen?style=for-the-badge)
-
----
-
-##  Overview 💡
-
-**Terminal-Pal** is a minimalist AI assistant that lives in your terminal.  
-Built using Python, the `rich` library, and Gemini 2.0's API, it's your go-to pal when you want instant help, explanations, or code — all within your CLI.
-
-Whether you're debugging, learning, or just exploring ideas, Terminal-Pal turns your terminal into an interactive AI chat space.
+![Multi-Provider AI](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral-purple?style=for-the-badge)
+![Terminal App](https://img.shields.io/badge/Interface-Terminal%20CLI-blue?style=for-the-badge)
+![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Language](https://img.shields.io/badge/Built%20With-Python-red?style=for-the-badge)
 
 ---
 
-##  Features 🔥
+## 🚀 Overview :
 
-- 🌐 **Powered by Gemini 2.0** (via Google Generative Language API)
-- 🎨 Beautiful CLI output using `rich`
-- ✨ Smartly formatted and animated responses
-- 💻 Code block rendering with syntax highlighting
-- 📋 Copy-to-clipboard functionality for code
-- 🧠 Conversations with memory (scroll-friendly)
-- 😎 Portable single-file script — plug and play
+AI Terminal Pal isn't your typical CLI toy — it's a full-blown developer productivity engine built into your terminal. Whether you're asking quick questions, analyzing codebases, generating boilerplate, or debugging a tangled mess, this tool understands your workflow. With multi-AI provider support, blazing speed, code-aware context building, and beautiful terminal output, it adapts to how *you* work.
 
 ---
 
-##  Workflow Diagram 🧠
+## 🛠️ Features at a Glance
 
-```mermaid
-graph TD
-A[User Prompt] --> B[Terminal-Pal]
-B --> C[Gemini API Request]
-C --> D[Receive Text + Code]
-D --> E[Render with rich]
-E --> F[Show in Terminal]
-F --> G{Code Block Present?}
-G -- Yes --> H[Offer to Copy Code]
-G -- No --> I[Wait for Next Prompt]
+- 🤖 **Multi-AI Support:** GPT-4o, Claude 3, Gemini 1.5, Mistral, Groq Llama3, and more
+- 🧠 **Contextual Intelligence:** File-aware responses using `@filename.py` or auto-scan
+- 🖼️ **Themes & UI:** Dynamic banner, themed layouts (Professional, Forest, Ocean, Minimal)
+- 📋 **Clipboard Smartness:** Auto-copy responses; paste into code right away
+- 📦 **Project Integration:** Code analysis, tree view, metrics, and documentation generation
+- 📊 **Live Stats:** Track tokens, cost, speed, and query logs
+- 🧪 **Built-in Dev Tools:** Linting, testing, formatting, and debugging (AI-assisted)
+- 📤 **Export Everything:** Generate PDFs, logs, reports, or backups from the CLI
+
+---
+
+## 📁 Folder Structure
+
+```
+ai-terminal-pal-v2/
+├── ai_chat_assistant.py    # Main app
+├── .env                    # API keys (optional, or added during /setup)
+├── README.md               # You're reading this
+├── requirements.txt        # All dependencies
 ```
 
 ---
 
-##  Folder Structure 📁
-
-```shell
-terminal-pal/
-├── terminal_pal.py         # Main app script
-├── README.md               # Project documentation
-├── requirements.txt        # Dependencies
-```
-
----
-
-##  Installation & Setup 🛠️
-
-###  Step 1: Install Requirements 📦
+## 🔧 Installation
 
 ```bash
-pip install rich requests pyperclip
+git clone https://github.com/vishnupriyanpr183207/Terminal-Pal
+cd Terminal-Pal
+pip install -r requirements.txt
 ```
 
-> Ensure Python 3.8+ is installed.
+Set your API keys in `.env` or input manually via `/setup`:
 
-###  Step 2: Add Your Gemini API Key 🔐
-
-Edit `terminal_pal.py` and replace:
-
-```python
-API_KEY = ""
+```env
+OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=...
+CLAUDE_API_KEY=...
 ```
 
-with your API key from [Google AI Studio](https://makersuite.google.com/).
+---
 
-###  Step 3: Run the Script 🚀
+## 💬 Usage
 
 ```bash
-python terminal_pal.py
+python ai_chat_assistant.py
 ```
 
-You’re now ready to chat with your AI pal right from your terminal!
-
----
-
-##  Sample Usage 🧪
+### Command Examples:
 
 ```bash
-Your Prompt (type 'exit' to quit): how does merge sort work?
-
-🤖 Gemini says:
-Merge sort is a divide-and-conquer algorithm that splits the array...
-💻 Code:
-def merge_sort(arr):
-    if len(arr) > 1:
-        mid = len(arr)//2
-        L = arr[:mid]
-        R = arr[mid:]
-        merge_sort(L)
-        merge_sort(R)
-        ...
+/setup                 # Launch the setup wizard
+/ask What is LangChain?   # Ask a quick AI query
+/scan                  # Analyze current project
+/theme forest          # Apply the 'forest' theme
+/attach app.py         # Attach file for AI context
 ```
 
-And if there's code, you'll get this:
-```
-Press 'c' to copy the code above or any other key to continue
+> Use `/help` or `/nav` to explore all commands.
+
+---
+
+## 🧠 Supported Providers
+
+This app is multi-AI out of the box. You can pick your preferred model during `/setup`.
+
+| Provider  | Example Models                 | Max Context     | Speed       |
+|-----------|--------------------------------|------------------|-------------|
+| **OpenAI**    | `gpt-4o`, `gpt-4-turbo`        | Up to 128k      | 🔥 Fast     |
+| **Claude**    | `opus`, `sonnet`, `haiku`      | Up to 200k      | 🚀 Blazing  |
+| **Gemini**    | `1.5-pro`, `flash`, `pro`      | Up to 2M        | ⚡ Snappy   |
+| **Groq**      | `llama3`, `mixtral`, `gemma`   | ~32k            | ⚡ Ultra-fast |
+| **Mistral**   | `codestral`, `mistral-large`   | ~32k            | 💡 Smart    |
+
+---
+
+## 🎨 Theming System
+
+Customize the terminal look with:
+
+- 💼 `Professional`
+- 🌊 `Ocean`
+- 🌿 `Forest`
+- ⚫ `Minimal`
+
+Change themes using:
+
+```bash
+/theme forest
 ```
 
 ---
 
+## 📊 Sample Session Stats
 
-
-
-
-
-##  License 📜
-
-Licensed under the [MIT License](LICENSE).
-
----
-
-##  Credits ✨
-
-Built by **Vishnupriyan**  
-If you like this, feel free to ⭐ the repo or fork it!  
-Got feature ideas? Hit me up or open an issue!
+```bash
+🧠 Provider: GPT-4o
+⏱️ Time Taken: 1.45s
+🔢 Tokens Used: 1,152
+💰 Estimated Cost: $0.0042
+📁 Files Contextualized: utils.py, routes.py
+```
 
 ---
 
+## 🧭 Command Categories
+
+| Category       | Commands                                                   |
+|----------------|------------------------------------------------------------|
+| Setup          | `/setup`, `/provider`, `/theme`, `/config`                |
+| AI Interaction | `/ask`, `/chat`, `/generate`, `/explain`, `/improve`      |
+| Project Tools  | `/scan`, `/tree`, `/metrics`, `/analyze`, `/deps`         |
+| File Ops       | `/attach`, `/read`, `/write`, `/edit`, `/backup`, `/compare` |
+| Dev Utilities  | `/lint`, `/test`, `/debug`, `/docs`, `/format`            |
+| Export/Logs    | `/pdf`, `/export`, `/report`, `/history`, `/logs`         |
+| System         | `/status`, `/monitor`, `/clear`, `/exit`, `/update`       |
+
+---
+
+## 🔒 Privacy & Security
+
+- API keys stored locally in your config directory or .env
+- No telemetry, no tracking — fully offline except for API calls
+- Full transparency in logging and history
+- Optional backup/restore for peace of mind
+
+---
+
+## 🔍 Sample Interactions
+
+```bash
+/ask Give me a FastAPI boilerplate
+/ask @views.py — optimize this
+/ask Explain difference between multiprocessing and multithreading
+```
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🙌 Credits
+
+Created by [Vishnupriyan P R](https://github.com/vishnupriyanpr183207).  
+Created by [Karthik Bslsji S V](https://github.com/KarthikBalaji-007).  
+
+Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
+
+> “Tools should disappear into the background and let you build.”  
+> — Vishnu, caffeinated coder ☕
