@@ -165,7 +165,7 @@ This project is licensed under the MIT License.
 ## 🙌 Credits
 
 Created by [Vishnupriyan P R](https://github.com/vishnupriyanpr183207).  
-Created by [Karthik Bslsji S V](https://github.com/KarthikBalaji-007).  
+Created by [Karthik Balaji S V](https://github.com/KarthikBalaji-007).  
 
 Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
 
