@@ -2,7 +2,7 @@
 
 > _"Your all-in-one terminal-based AI dev sidekick — engineered for speed, clarity, and control."_  
 > ✨ Powered by: **GPT‑4o**, **Claude 3 Opus**, **Gemini 1.5 Pro**, **Groq**, **Mistral**, and more.  
-> 💡 Designed & crafted with precision by **Vishnupriyan P R**
+> 💡 Designed & crafted with precision by **MeshMinds**
 
 ![Multi-Provider AI](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral-purple?style=for-the-badge)
 ![Terminal App](https://img.shields.io/badge/Interface-Terminal%20CLI-blue?style=for-the-badge)
@@ -164,10 +164,13 @@ This project is licensed under the MIT License.
 
 ## 🙌 Credits
 
-Created by [Vishnupriyan P R](https://github.com/vishnupriyanpr183207).  
-Created by [Karthik Balaji S V](https://github.com/KarthikBalaji-007).  
+Created by :-
+[Vishnupriyan P R](https://github.com/vishnupriyanpr183207).  
+[Vivek K K](https://github.com/Vivek-The-Creator).  
+[Akshaya K](https://github.com/Akshaya1215).  
+[Sanjit M](https://github.com/Sanjit-123).  
 
 Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
 
 > “Tools should disappear into the background and let you build.”  
-> — Vishnu, caffeinated coder ☕
+> — MeshMinds, caffeinated coder ☕
