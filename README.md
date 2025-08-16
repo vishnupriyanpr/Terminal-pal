@@ -170,7 +170,7 @@ This project is licensed under the MIT License.
 
 Created by :-
 <br></br>
-[Vishnupriyan P R](https://github.com/vishnupriyanpr183207).  
+[Vishnupriyan P R](https://github.com/vishnupriyanpr).  
 [Vivek K K](https://github.com/Vivek-The-Creator).  
 [Akshaya K](https://github.com/Akshaya1215).  
 [Sanjit M](https://github.com/Sanjit-123).  
