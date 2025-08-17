@@ -177,4 +177,4 @@ Created by :-
 Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
 
 > “Tools should disappear into the background and let you build.”  
-> — MeshMinds, caffeinated coder ☕
+> — Vishnupriyan P R, caffeinated coder ☕
