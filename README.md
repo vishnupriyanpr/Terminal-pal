@@ -171,7 +171,6 @@ This project is licensed under the MIT License.
 Created by :-
 <br></br>
 [Vishnupriyan P R](https://github.com/vishnupriyanpr).  
-[Karthik Balaji S V](https://github.com/Karthikbalaji-007).  
 
 
 Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
