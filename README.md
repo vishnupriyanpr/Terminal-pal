@@ -5,7 +5,7 @@
 > 💡 Designed & crafted with precision by **Vishnupriyan P R**
 
 > [![Built on - Python](https://img.shields.io/badge/Built--on-Python-blue)](#)
-> ![Maintained - yes](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral|%20Ollama%20|-purple)
+> ![Maintained - yes](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral%20|%20Ollama%20|-purple)
 > ![Terminal App](https://img.shields.io/badge/Interface-Terminal%20CLI-2F2F2F)
 > [![License-MIT](https://img.shields.io/badge/License-MIT-red)](#)
 
