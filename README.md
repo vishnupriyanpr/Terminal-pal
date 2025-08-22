@@ -168,12 +168,21 @@ This project is licensed under the MIT License.
 
 ## 🙌 Credits
 
-Created by :-
-<br></br>
-[Vishnupriyan P R](https://github.com/vishnupriyanpr).  
+<div align="center">
+  <table style="width:100%;">
+    <tr>
+      <td align="center" style="width:50%;">
+        <a href="https://github.com/vishnupriyanpr">
+                  <img src="https://github.com/vishnupriyanpr.png?size=120" width="120px;" alt="Vishnupriyan P R"/>
+      </a>
+      </td>
+      <td align="center" style="width:50%;">
+        <blockquote>
+          <p>“Tools should disappear into the background and let you build.”</p>
+          <footer>— Vishnupriyan P R, <i>caffeinated coder ☕</i></footer>
+        </blockquote>
+      </td>
+    </tr>
+  </table>
+</div>
 
-
-Crafted using Python's finest: `Rich`, `Pyperclip`, `Pillow`, `tiktoken`, `ReportLab`, and others.
-
-> “Tools should disappear into the background and let you build.”  
-> — Vishnupriyan P R, caffeinated coder ☕
