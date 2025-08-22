@@ -1,11 +1,11 @@
 # 🧠 AI Terminal Pal v2.0 – Supreme Developer Edition
 
 > _"Your all-in-one terminal-based AI dev sidekick — engineered for speed, clarity, and control."_  
-> ✨ Powered by: **GPT‑4o**, **Claude 3 Opus**, **Gemini 1.5 Pro**, **Groq**, **Mistral**, and more.  
+> ✨ Powered by: **GPT‑4o**, **Claude 3 Opus**, **Gemini 1.5 Pro**, **Groq**, **Mistral**, **Ollama** and more...  
 > 💡 Designed & crafted with precision by **Vishnupriyan P R**
 
 > [![Built on - Python](https://img.shields.io/badge/Built--on-Python-blue)](#)
-> ![Maintained - yes](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral-purple)
+> ![Maintained - yes](https://img.shields.io/badge/AI%20Engines-GPT4o%20|%20Claude%20|%20Gemini%20|%20Groq%20|%20Mistral|%20Ollama%20|-purple)
 > ![Terminal App](https://img.shields.io/badge/Interface-Terminal%20CLI-2F2F2F)
 > [![License-MIT](https://img.shields.io/badge/License-MIT-red)](#)
 
@@ -23,7 +23,7 @@ AI Terminal Pal isn't your typical CLI toy — it's a full-blown developer produ
 
 ## 🛠️ Features at a Glance
 
-- 🤖 **Multi-AI Support:** GPT-4o, Claude 3, Gemini 1.5, Mistral, Groq Llama3, and more
+- 🤖 **Multi-AI Support:** GPT-4o, Claude 3, Gemini 1.5, Mistral, Groq Llama3, Ollama, and more
 - 🧠 **Contextual Intelligence:** File-aware responses using `@filename.py` or auto-scan
 - 🖼️ **Themes & UI:** Dynamic banner, themed layouts (Professional, Forest, Ocean, Minimal)
 - 📋 **Clipboard Smartness:** Auto-copy responses; paste into code right away
@@ -38,7 +38,7 @@ AI Terminal Pal isn't your typical CLI toy — it's a full-blown developer produ
 
 ```
 ai-terminal-pal-/📂
-├── ai_chat_assistant.py    # Main app
+├── ai_terminal_pal.py    # Main app
 ├── .env                    # API keys (optional, or added during /setup)
 ├── README.md               # You're reading this
 ├── requirements.txt        # All dependencies
@@ -49,7 +49,7 @@ ai-terminal-pal-/📂
 ## 🔧 Installation
 
 ```bash
-git clone https://github.com/vishnupriyanpr183207/Terminal-Pal
+git clone https://github.com/vishnupriyanpr/Terminal-Pal
 cd Terminal-Pal
 pip install -r requirements.txt
 ```
@@ -67,7 +67,7 @@ CLAUDE_API_KEY=...
 ## 💬 Usage
 
 ```bash
-python ai_chat_assistant.py
+python ai_terminal_pal.py
 ```
 
 ### Command Examples:
@@ -95,6 +95,7 @@ This app is multi-AI out of the box. You can pick your preferred model during `/
 | **Gemini**    | `1.5-pro`, `flash`, `pro`      | Up to 2M        | ⚡ Snappy   |
 | **Groq**      | `llama3`, `mixtral`, `gemma`   | ~32k            | ⚡ Ultra-fast |
 | **Mistral**   | `codestral`, `mistral-large`   | ~32k            | 💡 Smart    |
+| **Ollama**   | any `model` you initialize   | ~32k            | 🏠 Local   |
 
 ---
 
