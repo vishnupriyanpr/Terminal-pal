@@ -95,7 +95,7 @@ This app is multi-AI out of the box. You can pick your preferred model during `/
 | **Gemini**    | `1.5-pro`, `flash`, `pro`      | Up to 2M        | ⚡ Snappy   |
 | **Groq**      | `llama3`, `mixtral`, `gemma`   | ~32k            | ⚡ Ultra-fast |
 | **Mistral**   | `codestral`, `mistral-large`   | ~32k            | 💡 Smart    |
-| **Ollama**   | any `model` you initialize   | ~32k            | 🏠 Local   |
+| **Ollama**   | any `model` you initialize   | ~32k +            | 🏠 Local   |
 
 ---
 
