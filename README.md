@@ -1,4 +1,4 @@
-# 🧠 AI Terminal Pal v2.0 – Supreme Developer Edition
+#  AI Terminal Pal v2.0 – Supreme Developer Edition
 
 > _"Your all-in-one terminal-based AI dev sidekick — engineered for speed, clarity, and control."_  
 > ✨ Powered by: **GPT‑4o**, **Claude 3 Opus**, **Gemini 1.5 Pro**, **Groq**, **Mistral**, **Ollama** and more...  
@@ -15,13 +15,13 @@
 
 ---
 
-## 🚀 Overview :
+## Overview :
 
 AI Terminal Pal isn't your typical CLI toy — it's a full-blown developer productivity engine built into your terminal. Whether you're asking quick questions, analyzing codebases, generating boilerplate, or debugging a tangled mess, this tool understands your workflow. With multi-AI provider support, blazing speed, code-aware context building, and beautiful terminal output, it adapts to how *you* work.
 
 ---
 
-## 🛠️ Features at a Glance
+## Features at a Glance
 
 - 🤖 **Multi-AI Support:** GPT-4o, Claude 3, Gemini 1.5, Mistral, Groq Llama3, Ollama, and more
 - 🧠 **Contextual Intelligence:** File-aware responses using `@filename.py` or auto-scan
@@ -34,7 +34,7 @@ AI Terminal Pal isn't your typical CLI toy — it's a full-blown developer produ
 
 ---
 
-## 📁 Folder Structure
+##  Folder Structure
 
 ```
 ai-terminal-pal-/📂
@@ -46,7 +46,7 @@ ai-terminal-pal-/📂
 
 ---
 
-## 🔧 Installation
+##  Installation
 
 ```bash
 git clone https://github.com/vishnupriyanpr/Terminal-Pal
@@ -64,7 +64,7 @@ CLAUDE_API_KEY=...
 
 ---
 
-## 💬 Usage
+##  Usage
 
 ```bash
 python ai_terminal_pal.py
@@ -84,7 +84,7 @@ python ai_terminal_pal.py
 
 ---
 
-## 🧠 Supported Providers
+##  Supported Providers
 
 This app is multi-AI out of the box. You can pick your preferred model during `/setup`.
 
@@ -99,7 +99,7 @@ This app is multi-AI out of the box. You can pick your preferred model during `/
 
 ---
 
-## 🎨 Theming System
+##  Theming System
 
 Customize the terminal look with:
 
@@ -116,7 +116,7 @@ Change themes using:
 
 ---
 
-## 📊 Sample Session Stats
+##  Sample Session Stats
 
 ```bash
 🧠 Provider: GPT-4o
@@ -128,7 +128,7 @@ Change themes using:
 
 ---
 
-## 🧭 Command Categories
+##  Command Categories
 
 | Category       | Commands                                                   |
 |----------------|------------------------------------------------------------|
@@ -142,7 +142,7 @@ Change themes using:
 
 ---
 
-## 🔒 Privacy & Security
+##  Privacy & Security
 
 - API keys stored locally in your config directory or .env
 - No telemetry, no tracking — fully offline except for API calls
@@ -151,7 +151,7 @@ Change themes using:
 
 ---
 
-## 🔍 Sample Interactions
+##  Sample Interactions
 
 ```bash
 /ask Give me a FastAPI boilerplate
@@ -161,13 +161,13 @@ Change themes using:
 
 ---
 
-## 📜 License
+##  License
 
 This project is licensed under the Apache 2.0 License.
 
 ---
 
-## 🙌 Credits
+##  Credits
 
 <div align="center">
   <table style="width:100%;">
