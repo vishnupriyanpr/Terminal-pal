@@ -964,7 +964,7 @@ class AITerminalPal:
         # Tech stack
         tech_line = "Using 3 TERMINAL-PAL files"
         tech_padding = (content_width - len(tech_line)) // 2
-        banner_lines.append(f"[dim cyan]{' ' * tech_padding}{tech_line}[/]")
+        banner_lines.append(f"[deep_sky_blue4]{' ' * tech_padding}{tech_line}[/]")
 
         # spacer
         banner_lines.append("")
@@ -972,7 +972,7 @@ class AITerminalPal:
         # Status line without any bg shadow
         status_line = ": Uncovering Terminal's Awesome (esc to cancel, 21s)"
         status_padding = (content_width - len(status_line)) // 2
-        banner_lines.append(f"[dim white]{' ' * status_padding}{status_line}[/]")
+        banner_lines.append(f"[grey70]{' ' * status_padding}{status_line}[/]")
 
         # spacer
         banner_lines.append("")
@@ -990,7 +990,7 @@ class AITerminalPal:
             if idx == 0:
                 banner_lines.append(f"[bold white]{' ' * tip_padding}{tip}[/]")
             else:
-                banner_lines.append(f"[dim white]{' ' * tip_padding}{tip}[/]")
+                banner_lines.append(f"[grey70]{' ' * tip_padding}{tip}[/]")
 
         # spacer
         banner_lines.append("")
@@ -1009,7 +1009,7 @@ class AITerminalPal:
 
         # Print footer like Gemini CLI without black shadow
         console.print(
-            f"[dim]~/code/terminal-pal [yellow](release*)[/] [dim white]no sandbox (see /docs)[/] [cyan]terminal-pal-ai (99% context left)[/]"
+            f"[grey50]~/code/terminal-pal [yellow](release*)[/] [grey70]no sandbox (see /docs)[/] [cyan]terminal-pal-ai (99% context left)[/]"
         )
 
     def display_terminal_pal_prompt(self):
@@ -1288,9 +1288,9 @@ class AITerminalPal:
 
             if not models:
                 console.print("[yellow]⚠️ No models found. Install a model first:[/]")
-                console.print("[dim]  ollama pull llama2[/]")
-                console.print("[dim]  ollama pull codellama[/]")
-                console.print("[dim]  ollama pull mistral[/]")
+                console.print("[grey50]  ollama pull llama2[/]")
+                console.print("[grey50]  ollama pull codellama[/]")
+                console.print("[grey50]  ollama pull mistral[/]")
                 return
 
             console.print(f"\n[cyan]🤖 Available local models ({len(models)} found):[/]")
@@ -1444,7 +1444,7 @@ class AITerminalPal:
             "• [yellow]/scan[/] - Analyze your project\n"
             "• [yellow]/help[/] - View all commands\n"
             "• [yellow]/nav[/] - Navigation guide\n\n"
-            "[dim]Tip: Use /tips for pro usage tips![/]",
+            "[grey50]Tip: Use /tips for pro usage tips![/]",
             title="🚀 Ready to Go!",
             border_style="green"
         )
@@ -1465,9 +1465,9 @@ class AITerminalPal:
 
             if not models:
                 console.print("[red]❌ No Ollama models found. Install models first:[/]")
-                console.print("[dim]  ollama pull llama2[/]")
-                console.print("[dim]  ollama pull codellama[/]")
-                console.print("[dim]  ollama pull mistral[/]")
+                console.print("[grey50]  ollama pull llama2[/]")
+                console.print("[grey50]  ollama pull codellama[/]")
+                console.print("[grey50]  ollama pull mistral[/]")
                 return
 
             console.print(f"\n[cyan]🏠 Available Ollama models:[/]")
@@ -1766,7 +1766,7 @@ class AITerminalPal:
             if self.config.get('auto_copy', True) and not response.content.startswith("Error"):
                 try:
                     pyperclip.copy(response.content)
-                    console.print("[dim green]📋 Response auto-copied to clipboard[/]")
+                    console.print("[dark_green]📋 Response auto-copied to clipboard[/]")
                 except Exception:
                     pass
 
@@ -2028,7 +2028,7 @@ class AITerminalPal:
         metadata_items.append(f"🕒 {datetime.datetime.fromisoformat(response.timestamp).strftime('%H:%M:%S')}")
 
         if metadata_items:
-            console.print(f"[dim cyan]{'  |  '.join(metadata_items)}[/]")
+            console.print(f"[deep_sky_blue4]{'  |  '.join(metadata_items)}[/]")
 
     # Clear screen with enhanced banner
     def clear_screen(self, args):
@@ -2124,7 +2124,78 @@ class AITerminalPal:
         console.print("[yellow]⚠️ Shortcuts reference coming in next update![/]")
 
     async def start_enhanced_chat(self, args):
-        console.print("[yellow]⚠️ Enhanced chat mode coming in next update![/]")
+        """Interactive chat mode with history"""
+        if not self.ai_provider:
+            console.print("[red]❌ No AI provider configured. Run /setup first[/]")
+            return
+
+        console.print(Panel.fit(
+            "[bold blue]💬 Interactive Chat Mode[/]\n"
+            "[grey70]Type 'exit', 'quit', or 'bye' to return to main menu[/]\n"
+            "[grey70]Context is remembered during this session[/]",
+            title="Started Chat",
+            border_style="blue"
+        ))
+
+        # Chat history for this session
+        chat_context = []
+
+        while True:
+            try:
+                # Chat prompt
+                user_input = Prompt.ask("\n[bold cyan]You[/]").strip()
+
+                if not user_input:
+                    continue
+
+                if user_input.lower() in ['exit', 'quit', 'bye']:
+                    console.print("[green]👋 Exiting chat mode[/]")
+                    break
+
+                # Add to context
+                chat_context.append(f"User: {user_input}")
+
+                # Keep context reasonable (last 10 interactions)
+                if len(chat_context) > 20:
+                    chat_context = chat_context[-20:]
+
+                # Build prompt with history
+                context_str = "\n".join(chat_context)
+
+                # Show thinking indicator
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[progress.description]{task.description}"),
+                    transient=True
+                ) as progress:
+                    progress.add_task(f"🤖 {self.ai_provider.name} is thinking...", total=None)
+
+                    # Query AI
+                    response = await self.ai_provider.query(
+                        user_input,
+                        context=f"Previous conversation:\n{context_str}",
+                        temperature=0.7
+                    )
+
+                # Add response to context
+                chat_context.append(f"AI: {response.content}")
+
+                # Display response
+                self.display_enhanced_ai_response(response, user_input)
+
+                # Log to session
+                self.session_log.append({
+                    'timestamp': response.timestamp,
+                    'type': 'chat',
+                    'query': user_input,
+                    'response': response.content
+                })
+
+            except KeyboardInterrupt:
+                console.print("\n[yellow]⚠️ Exiting chat mode[/]")
+                break
+            except Exception as e:
+                console.print(f"[red]❌ Error: {str(e)}[/]")
 
     async def explain_with_ai(self, args):
         """AI-powered error explanation tailored to user experience level"""
@@ -2134,10 +2205,10 @@ class AITerminalPal:
 
         if not args:
             console.print("[yellow]💡 Usage: /explain <error_message> or /explain <error_type>[/]")
-            console.print("[dim]Examples:[/]")
-            console.print("[dim]  /explain \"SyntaxError: expected ':'\"[/]")
-            console.print("[dim]  /explain IndexError[/]")
-            console.print("[dim]  /explain \"NameError: name 'x' is not defined\"[/]")
+            console.print("[grey50]Examples:[/]")
+            console.print("[grey50]  /explain \"SyntaxError: expected ':'\"[/]")
+            console.print("[grey50]  /explain IndexError[/]")
+            console.print("[grey50]  /explain \"NameError: name 'x' is not defined\"[/]")
             return
 
         error_input = " ".join(args)
@@ -2465,9 +2536,9 @@ class AITerminalPal:
 
         if not args:
             console.print("[yellow]💡 Usage: /improve <filename> or /improve \"<code_snippet>\"[/]")
-            console.print("[dim]Examples:[/]")
-            console.print("[dim]  /improve app.py[/]")
-            console.print("[dim]  /improve \"def slow_function(data): pass\"[/]")
+            console.print("[grey50]Examples:[/]")
+            console.print("[grey50]  /improve app.py[/]")
+            console.print("[grey50]  /improve \"def slow_function(data): pass\"[/]")
             return
 
         # Determine if input is file or code snippet
@@ -2866,10 +2937,10 @@ class AITerminalPal:
         """Attach files for AI context and debugging analysis"""
         if not args:
             console.print("[yellow]💡 Usage: /attach <filename> [filename2 ...] or /attach <directory>[/]")
-            console.print("[dim]Examples:[/]")
-            console.print("[dim]  /attach app.py[/]")
-            console.print("[dim]  /attach src/ config.py[/]")
-            console.print("[dim]  /attach *.py[/]")
+            console.print("[grey50]Examples:[/]")
+            console.print("[grey50]  /attach app.py[/]")
+            console.print("[grey50]  /attach src/ config.py[/]")
+            console.print("[grey50]  /attach *.py[/]")
             return
 
         attached_files = []
@@ -3186,14 +3257,81 @@ class AITerminalPal:
             self.display_attached_files()
         else:
             console.print("[yellow]📎 No files currently attached[/]")
-            console.print("[dim]Use /attach <filename> to attach files for context[/]")
+            console.print("[grey50]Use /attach <filename> to attach files for context[/]")
 
 
     def read_file_enhanced(self, args):
-        console.print("[yellow]⚠️ Enhanced file reading coming in next update![/]")
+        """Read and display file content with syntax highlighting"""
+        if not args:
+            console.print("[yellow]💡 Usage: /read <filename>[/]")
+            return
+
+        filename = args[0]
+        if not os.path.exists(filename):
+            console.print(f"[red]❌ File not found: {filename}[/]")
+            return
+
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Detect language
+            ext = os.path.splitext(filename)[1].lower()
+            lang = 'text'
+            if ext in ['.py']: lang = 'python'
+            elif ext in ['.js', '.json']: lang = 'javascript'
+            elif ext in ['.html']: lang = 'html'
+            elif ext in ['.css']: lang = 'css'
+            elif ext in ['.md']: lang = 'markdown'
+
+            syntax = Syntax(content, lang, theme="monokai", line_numbers=True)
+
+            console.print(Panel(
+                syntax,
+                title=f"📄 {filename}",
+                border_style="blue",
+                subtitle=f"Lines: {len(content.splitlines())} | Size: {len(content)} bytes"
+            ))
+
+        except Exception as e:
+            console.print(f"[red]❌ Error reading file: {str(e)}[/]")
 
     def write_file_enhanced(self, args):
-        console.print("[yellow]⚠️ Enhanced file writing coming in next update![/]")
+        """Write content to a file"""
+        if not args:
+            console.print("[yellow]💡 Usage: /write <filename>[/]")
+            return
+
+        filename = args[0]
+
+        if os.path.exists(filename):
+            if not Confirm.ask(f"[yellow]⚠️ File {filename} exists. Overwrite?[/]", default=False):
+                return
+
+        console.print("[cyan]📝 Enter content (Type 'EOF' on a new line to save, 'CANCEL' to abort):[/]")
+
+        lines = []
+        while True:
+            try:
+                line = input()
+                if line.strip() == 'EOF':
+                    break
+                if line.strip() == 'CANCEL':
+                    console.print("[yellow]❌ Operation cancelled[/]")
+                    return
+                lines.append(line)
+            except EOFError:
+                break
+
+        content = '\n'.join(lines)
+
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(content)
+            console.print(f"[green]✅ Successfully wrote {len(lines)} lines to {filename}[/]")
+
+        except Exception as e:
+            console.print(f"[red]❌ Error writing file: {str(e)}[/]")
 
     def edit_with_ai(self, args):
         console.print("[yellow]⚠️ AI-powered editing coming in next update![/]")
@@ -3208,7 +3346,34 @@ class AITerminalPal:
         console.print("[yellow]⚠️ File comparison feature coming in next update![/]")
 
     def scan_project_enhanced(self, args):
-        console.print("[yellow]⚠️ Enhanced project scanning coming in next update![/]")
+        """Analyze project structure and stats"""
+        console.print("[cyan]🔍 Scanning project structure...[/]")
+
+        try:
+            files = self.project_integrator.scan_project()
+
+            # Calculate stats
+            total_files = sum(len(f_list) for f_list in files.values())
+
+            # Create summary table
+            table = Table(title="📦 Project Scan Summary", border_style="blue")
+            table.add_column("Category", style="cyan")
+            table.add_column("Files", style="green")
+            table.add_column("Examples", style="white")
+
+            for category, file_list in files.items():
+                if file_list:
+                    examples = ", ".join([Path(f).name for f in file_list[:3]])
+                    if len(file_list) > 3:
+                        examples += f" (+{len(file_list)-3} more)"
+                    table.add_row(category.title(), str(len(file_list)), examples)
+
+            console.print(table)
+            console.print(f"\n[bold]Total Files Found: {total_files}[/]")
+            console.print("[grey50]Use /tree to see full hierarchy[/]")
+
+        except Exception as e:
+            console.print(f"[red]❌ Scan failed: {str(e)}[/]")
 
     def analyze_project(self, args):
         console.print("[yellow]⚠️ Project analysis feature coming in next update![/]")
@@ -3220,7 +3385,58 @@ class AITerminalPal:
         console.print("[yellow]⚠️ Project metrics feature coming in next update![/]")
 
     def display_project_tree(self, args):
-        console.print("[yellow]⚠️ Project tree display coming in next update![/]")
+        """Display project file structure using Tree"""
+        path = self.current_project_path
+        if args:
+            target_path = os.path.join(self.current_project_path, args[0])
+            if os.path.exists(target_path):
+                path = target_path
+            else:
+                console.print(f"[red]❌ Path not found: {args[0]}[/]")
+                return
+
+        def build_tree(directory, tree_node):
+            # Sort directories first, then files
+            try:
+                paths = sorted(Path(directory).iterdir(), key=lambda p: (not p.is_dir(), p.name.lower()))
+            except PermissionError:
+                tree_node.add("[red]🚫 Permission Denied[/]")
+                return
+
+            for path in paths:
+                # Skip hidden files/dirs if not explicitly requested
+                if path.name.startswith('.') and path.name != '.env':
+                    continue
+
+                # Skip ignore patterns
+                if self.project_integrator._should_ignore(path):
+                    continue
+
+                if path.is_dir():
+                    branch = tree_node.add(f"[bold blue]📂 {path.name}[/]")
+                    build_tree(path, branch)
+                else:
+                    icon = "📄"
+                    if path.suffix in ['.py', '.js', '.ts', '.java', '.cpp']:
+                        icon = "💻"
+                    elif path.suffix in ['.html', '.css', '.scss']:
+                        icon = "🎨"
+                    elif path.suffix in ['.json', '.yaml', '.yml', '.xml']:
+                        icon = "⚙️"
+                    elif path.suffix in ['.md', '.txt', '.rst']:
+                        icon = "📝"
+                    elif path.suffix in ['.png', '.jpg', '.svg']:
+                        icon = "🖼️"
+
+                    file_size = os.path.getsize(path)
+                    size_str = f"{file_size/1024:.1f}KB" if file_size > 1024 else f"{file_size}B"
+
+                    tree_node.add(f"{icon} {path.name} [grey50]({size_str})[/]")
+
+        console.print(f"\n[bold cyan]📦 Project Tree: {os.path.basename(path)}[/]")
+        root_tree = Tree(f"[bold blue]📂 {os.path.basename(path)}[/]")
+        build_tree(path, root_tree)
+        console.print(root_tree)
 
     def search_project(self, args):
         console.print("[yellow]⚠️ Project search feature coming in next update![/]")
@@ -3236,9 +3452,9 @@ class AITerminalPal:
 
         if not args:
             console.print("[yellow]💡 Usage: /debug <filename> or /debug <code_snippet>[/]")
-            console.print("[dim]Examples:[/]")
-            console.print("[dim]  /debug app.py[/]")
-            console.print("[dim]  /debug \"print('hello world')[/]")
+            console.print("[grey50]Examples:[/]")
+            console.print("[grey50]  /debug app.py[/]")
+            console.print("[grey50]  /debug \"print('hello world')[/]")
             return
 
         # Determine if input is file or code snippet
@@ -3554,9 +3770,9 @@ class AITerminalPal:
         """Enhanced code linting with multiple tools and AI analysis"""
         if not args:
             console.print("[yellow]💡 Usage: /lint <filename> or /lint <directory>[/]")
-            console.print("[dim]Examples:[/]")
-            console.print("[dim]  /lint app.py[/]")
-            console.print("[dim]  /lint src/[/]")
+            console.print("[grey50]Examples:[/]")
+            console.print("[grey50]  /lint app.py[/]")
+            console.print("[grey50]  /lint src/[/]")
             return
 
         target = args[0]
@@ -3843,7 +4059,7 @@ class AITerminalPal:
                 console.print(issues_table)
 
                 if len(severity_issues) > 10:
-                    console.print(f"[dim]... and {len(severity_issues) - 10} more {severity} issues[/]")
+                    console.print(f"[grey50]... and {len(severity_issues) - 10} more {severity} issues[/]")
 
     def determine_issue_severity(self, issue: Dict, tool_name: str) -> str:
         """Determine issue severity based on tool and issue type"""
@@ -3983,16 +4199,102 @@ class AITerminalPal:
         console.print("[yellow]⚠️ Detailed statistics coming in next update![/]")
 
     def show_enhanced_history(self, args):
-        console.print("[yellow]⚠️ Enhanced history view coming in next update![/]")
+        """Show session history with enhanced formatting"""
+        if not self.session_log:
+            console.print("[yellow]📜 No history for this session yet[/]")
+            return
+
+        table = Table(title="📜 Session History", border_style="blue")
+        table.add_column("Time", style="cyan", width=10)
+        table.add_column("Type", style="yellow", width=10)
+        table.add_column("Query/Action", style="white", width=40)
+        table.add_column("Tokens", style="green", width=10)
+
+        for entry in self.session_log:
+            time_str = datetime.datetime.fromisoformat(entry['timestamp']).strftime("%H:%M:%S")
+            tokens = str(entry.get('tokens_used', 'N/A'))
+
+            # Truncate query if too long
+            query = entry.get('query', '')
+            if len(query) > 50:
+                query = query[:47] + "..."
+
+            table.add_row(
+                time_str,
+                entry.get('type', 'unknown').title(),
+                query,
+                tokens
+            )
+
+        console.print(table)
+        console.print(f"[grey50]Total Queries: {len(self.session_log)}[/]")
 
     def show_logs(self, args):
         console.print("[yellow]⚠️ Log viewer coming in next update![/]")
 
     def show_system_status(self, args):
-        console.print("[yellow]⚠️ System status feature coming in next update![/]")
+        """Display system status and application state"""
+        self.display_status_panel()
+
+        # Add basic system info
+        cpu_usage = psutil.cpu_percent()
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+
+        sys_table = Table(show_header=False, box=None)
+        sys_table.add_column("Metric", style="cyan")
+        sys_table.add_column("Value", style="white")
+
+        sys_table.add_row("🖥️ CPU Usage", f"{cpu_usage}%")
+        sys_table.add_row("🧠 Memory", f"{memory.percent}% ({memory.used/1024/1024/1024:.1f}GB / {memory.total/1024/1024/1024:.1f}GB)")
+        sys_table.add_row("💾 Disk Space", f"{disk.percent}% used")
+        sys_table.add_row("🐍 Python Version", sys.version.split()[0])
+        sys_table.add_row("⏱️ Uptime", str(datetime.datetime.now() - self.performance_stats['session_start']).split('.')[0])
+
+        console.print(Panel(
+            sys_table,
+            title="🖥️ System Status",
+            border_style="blue"
+        ))
 
     def system_monitor(self, args):
-        console.print("[yellow]⚠️ System monitoring coming in next update![/]")
+        """Live system monitoring"""
+        console.print("[cyan]📊 Starting system monitor (Press Ctrl+C to stop)...[/]")
+        try:
+            with Live(refresh_per_second=1) as live:
+                while True:
+                    cpu_usage = psutil.cpu_percent()
+                    memory = psutil.virtual_memory()
+                    disk = psutil.disk_usage('/')
+                    net = psutil.net_io_counters()
+
+                    # Create layout
+                    table = Table(title="Live System Monitor", border_style="green")
+                    table.add_column("Metric", style="cyan", width=20)
+                    table.add_column("Value", style="bold white", width=20)
+                    table.add_column("Bar", style="yellow", width=40)
+
+                    # CPU
+                    cpu_bar = "█" * int(cpu_usage / 2.5)
+                    table.add_row("CPU Usage", f"{cpu_usage}%", f"[{'red' if cpu_usage > 80 else 'green'}]{cpu_bar}[/]")
+
+                    # Memory
+                    mem_bar = "█" * int(memory.percent / 2.5)
+                    table.add_row("Memory Usage", f"{memory.percent}%", f"[{'red' if memory.percent > 80 else 'green'}]{mem_bar}[/]")
+
+                    # Disk
+                    disk_bar = "█" * int(disk.percent / 2.5)
+                    table.add_row("Disk Usage", f"{disk.percent}%", f"[{'red' if disk.percent > 80 else 'blue'}]{disk_bar}[/]")
+
+                    # Network
+                    table.add_row("Net Sent", f"{net.bytes_sent/1024/1024:.1f} MB", "")
+                    table.add_row("Net Recv", f"{net.bytes_recv/1024/1024:.1f} MB", "")
+
+                    live.update(Panel(table))
+                    time.sleep(1)
+
+        except KeyboardInterrupt:
+            console.print("\n[green]✅ Monitor stopped[/]")
 
     def copy_to_clipboard(self, args):
         console.print("[yellow]⚠️ Clipboard operations coming in next update![/]")
