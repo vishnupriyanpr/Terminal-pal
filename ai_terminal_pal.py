@@ -34,7 +34,7 @@ import google.generativeai as genai
 
 # Core dependencies with error handling
 try:
-    from colorama import init, Fore, Back, Style
+    # from colorama import init, Fore, Back, Style # Deprecated in v2.0
     from rich.console import Console
     from rich.panel import Panel
     from rich.text import Text
@@ -51,24 +51,20 @@ try:
     from rich.status import Status
     import requests
     import pyperclip
-    import psutil
-    from PIL import Image
-    import PyPDF2
-    import pandas as pd
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.pagesizes import letter, A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Preformatted
-    from reportlab.lib import colors
-    from reportlab.lib.units import inch
+    # Lazy imports to speed up startup
+    # import psutil
+    # from PIL import Image
+    # import PyPDF2
+    # import pandas as pd
+    # from reportlab...
     import tiktoken
 except ImportError as e:
     print(f"❌ Missing dependency: {e}")
     print("📦 Install with: pip install colorama rich requests pyperclip psutil pillow PyPDF2 pandas reportlab tiktoken")
     sys.exit(1)
 
-# Initialize colorama and console
-init(autoreset=True)
+# Initialize console
+# init(autoreset=True) # Deprecated
 console = Console()
 
 # Enhanced logging configuration
@@ -638,48 +634,33 @@ class ThemeManager:
     """Advanced theme management system"""
 
     def __init__(self):
+        # Production "Cyber Blue" Theme System
         self.themes = {
-            'professional': {
-                'primary': Fore.BLUE,
-                'secondary': Fore.CYAN,
-                'success': Fore.GREEN,
-                'warning': Fore.YELLOW,
-                'error': Fore.RED,
-                'accent': Fore.MAGENTA,
-                'muted': Fore.LIGHTBLACK_EX
+            'cyber_blue': {
+                'primary': '[bold deep_sky_blue1]',    # Main headers
+                'secondary': '[cyan1]',                # Subheaders/Info
+                'accent': '[white]',                   # Main text
+                'muted': '[grey50]',                   # Comments
+                'success': '[spring_green1]',          # Success messages
+                'warning': '[gold1]',                  # Warnings
+                'error': '[red1]',                     # Errors
+                'prompt': '[bold dodger_blue1]'        # Prompt symbol
             },
-            'ocean': {
-                'primary': Fore.BLUE,
-                'secondary': Fore.LIGHTBLUE_EX,
-                'success': Fore.GREEN,
-                'warning': Fore.YELLOW,
-                'error': Fore.RED,
-                'accent': Fore.CYAN,
-                'muted': Fore.LIGHTBLACK_EX
-            },
-            'forest': {
-                'primary': Fore.GREEN,
-                'secondary': Fore.LIGHTGREEN_EX,
-                'success': Fore.GREEN,
-                'warning': Fore.YELLOW,
-                'error': Fore.RED,
-                'accent': Fore.CYAN,
-                'muted': Fore.LIGHTBLACK_EX
-            },
-            'minimal': {
-                'primary': Fore.WHITE,
-                'secondary': Fore.LIGHTWHITE_EX,
-                'success': Fore.GREEN,
-                'warning': Fore.YELLOW,
-                'error': Fore.RED,
-                'accent': Fore.BLUE,
-                'muted': Fore.LIGHTBLACK_EX
+            'professional': { # Legacy support mapped to rich colors
+                'primary': '[bold blue]',
+                'secondary': '[cyan]',
+                'success': '[green]',
+                'warning': '[yellow]',
+                'error': '[red]',
+                'accent': '[magenta]',
+                'muted': '[grey50]'
             }
         }
-        self.current_theme = 'professional'
+        self.current_theme = 'cyber_blue'
 
     def get_color(self, color_type: str) -> str:
-        return self.themes[self.current_theme].get(color_type, Fore.WHITE)
+        # Fallback to white if color key missing
+        return self.themes.get(self.current_theme, {}).get(color_type, "[white]")
 
     def set_theme(self, theme_name: str) -> bool:
         if theme_name in self.themes:
@@ -933,14 +914,14 @@ class AITerminalPal:
             "   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝  ╚═╝╚══════╝"
         ]
 
-        # Gradient colors
+        # Cyber Blue Gradient
         colors = [
-            "[bold rgb(173,216,230)]",  # Light blue
-            "[bold rgb(135,206,235)]",  # Sky blue
-            "[bold rgb(100,149,237)]",  # Cornflower blue
-            "[bold rgb(138,43,226)]",   # Blue violet
-            "[bold rgb(220,20,60)]",    # Crimson
-            "[bold rgb(255,69,0)]"      # Red orange
+            "[bold cyan1]",
+            "[bold deep_sky_blue1]",
+            "[bold dodger_blue1]",
+            "[bold blue1]",
+            "[bold deep_sky_blue2]",
+            "[bold cyan2]"
         ]
 
         content_width = terminal_width - 4
@@ -963,27 +944,19 @@ class AITerminalPal:
         banner_lines.append("")
 
         # Tech stack
-        tech_line = "Using 3 TERMINAL-PAL files"
+        tech_line = "Running in Production Mode"
         tech_padding = (content_width - len(tech_line)) // 2
-        banner_lines.append(f"[deep_sky_blue4]{' ' * tech_padding}{tech_line}[/]")
-
-        # spacer
-        banner_lines.append("")
-
-        # Status line without any bg shadow
-        status_line = ": Uncovering Terminal's Awesome (esc to cancel, 21s)"
-        status_padding = (content_width - len(status_line)) // 2
-        banner_lines.append(f"[grey70]{' ' * status_padding}{status_line}[/]")
+        banner_lines.append(f"[cyan1]{' ' * tech_padding}{tech_line}[/]")
 
         # spacer
         banner_lines.append("")
 
         # Tips
         tips = [
-            "Tips for getting started:",
-            "1. Ask questions, edit files, or run commands.",
-            "2. Be specific for the best results.",
-            "3. /help for more information."
+            "Production Tips:",
+            "1. Commands are lazy-loaded for speed.",
+            "2. Use '/benchmark' to test AI latency.",
+            "3. Ctrl+C safely cancels any operation."
         ]
 
         for idx, tip in enumerate(tips):
@@ -991,7 +964,7 @@ class AITerminalPal:
             if idx == 0:
                 banner_lines.append(f"[bold white]{' ' * tip_padding}{tip}[/]")
             else:
-                banner_lines.append(f"[grey70]{' ' * tip_padding}{tip}[/]")
+                banner_lines.append(f"[grey50]{' ' * tip_padding}{tip}[/]")
 
         # spacer
         banner_lines.append("")
@@ -999,7 +972,7 @@ class AITerminalPal:
         # Credits
         credits = "Made with 💟 by Vishnupriyan P R"
         credits_padding = (content_width - len(credits)) // 2
-        banner_lines.append(f"[bold magenta]{' ' * credits_padding}{credits}[/]")
+        banner_lines.append(f"[bold deep_sky_blue1]{' ' * credits_padding}{credits}[/]")
 
         # Bottom margin
         banner_lines.extend([""]*2)
@@ -1013,38 +986,6 @@ class AITerminalPal:
             f"[grey50]~/code/terminal-pal [yellow](release*)[/] [grey70]no sandbox (see /docs)[/] [cyan]terminal-pal-ai (99% context left)[/]"
         )
 
-    def display_terminal_pal_prompt(self):
-        """Display Terminal Pal styled prompt"""
-        # Get current provider info
-        provider_info = "No AI"
-        model_info = "not configured"
-
-        if hasattr(self, 'ai_provider') and self.ai_provider:
-            provider_info = self.ai_provider.name
-            model_info = self.ai_provider.model
-
-        # Create the styled prompt matching Gemini CLI
-        console.print(f"[blue]┌─[[cyan]Terminal-Pal[blue]]─[[magenta]v2.0 Supreme[blue]]─[[cyan]{provider_info}:{model_info}[blue]][/]")
-        return "[blue]└─$ [/]"
-
-
-    def display_terminal_pal_prompt(self):
-        """Display Terminal Pal styled prompt similar to Gemini CLI"""
-        # Get current provider info
-        provider_info = "No AI"
-        model_info = "not configured"
-
-        if hasattr(self, 'ai_provider') and self.ai_provider:
-            provider_info = self.ai_provider.name
-            model_info = self.ai_provider.model
-
-        # Create the styled prompt
-        prompt_parts = [
-            f"[bold blue]┌─[[cyan]Terminal-Pal[blue]]─[[magenta]v2.0 Supreme[blue]]─[[cyan]{provider_info}:{model_info}[blue]][/]",
-            f"[blue]└─$[/] "
-        ]
-
-        return "".join(prompt_parts)
 
 
     def display_status_panel(self):
@@ -2645,12 +2586,14 @@ class AITerminalPal:
         # Format prompt
         full_prompt = system_prompt_template.format(content=content)
 
+        # Advanced spinner with blue theme
+        spinner_style = "bold deep_sky_blue1"
         with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
+            SpinnerColumn(spinner_name="dots12", style=spinner_style),
+            TextColumn(f"[{spinner_style}]{{task.description}}"),
             transient=True
         ) as progress:
-            progress.add_task(f"🤖 {task_type.title()} in progress...", total=None)
+            progress.add_task(f"Processing {task_type.title()}...", total=None)
 
             try:
                 response = await self.ai_provider.query(
@@ -4671,24 +4614,34 @@ class AITerminalPal:
 
     def generate_pdf_report(self, args):
         """Generate PDF report of session"""
+        try:
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.pagesizes import letter
+        except ImportError:
+            console.print("[red]❌ reportlab not installed. Cannot generate PDF.[/]")
+            return
+
         filename = f"report_{int(time.time())}.pdf"
-        c = canvas.Canvas(filename, pagesize=letter)
-        width, height = letter
+        try:
+            c = canvas.Canvas(filename, pagesize=letter)
+            width, height = letter
 
-        c.drawString(100, height - 50, f"AI Terminal Pal Report - {datetime.datetime.now()}")
-        y = height - 80
+            c.drawString(100, height - 50, f"AI Terminal Pal Report - {datetime.datetime.now()}")
+            y = height - 80
 
-        for entry in self.session_log[-20:]: # Last 20 entries
-            if y < 50:
-                c.showPage()
-                y = height - 50
+            for entry in self.session_log[-20:]: # Last 20 entries
+                if y < 50:
+                    c.showPage()
+                    y = height - 50
 
-            text = f"[{entry.get('timestamp', '')}] {entry.get('type', '')}: {entry.get('query', '')[:50]}..."
-            c.drawString(50, y, text)
-            y -= 20
+                text = f"[{entry.get('timestamp', '')}] {entry.get('type', '')}: {entry.get('query', '')[:50]}..."
+                c.drawString(50, y, text)
+                y -= 20
 
-        c.save()
-        console.print(f"[green]✅ PDF Report generated: {filename}[/]")
+            c.save()
+            console.print(f"[green]✅ PDF Report generated: {filename}[/]")
+        except Exception as e:
+            console.print(f"[red]❌ PDF Generation failed: {str(e)}[/]")
 
     def generate_project_report(self, args):
         """Generate comprehensive project report"""
@@ -4786,6 +4739,12 @@ class AITerminalPal:
 
     def show_system_status(self, args):
         """Display system status and application state"""
+        try:
+            import psutil
+        except ImportError:
+            console.print("[red]❌ psutil not installed. Cannot show system status.[/]")
+            return
+
         self.display_status_panel()
 
         # Add basic system info
@@ -4811,6 +4770,12 @@ class AITerminalPal:
 
     def system_monitor(self, args):
         """Live system monitoring"""
+        try:
+            import psutil
+        except ImportError:
+            console.print("[red]❌ psutil not installed. Cannot monitor system.[/]")
+            return
+
         console.print("[cyan]📊 Starting system monitor (Press Ctrl+C to stop)...[/]")
         try:
             with Live(refresh_per_second=1) as live:
@@ -4920,7 +4885,7 @@ class AITerminalPal:
         os.execl(python, python, *sys.argv)
 
     async def process_command(self, command_line: str):
-        """Enhanced command processing"""
+        """Enhanced command processing with production-grade error handling"""
         parts = command_line.strip().split()
         if not parts:
             return
@@ -4928,24 +4893,44 @@ class AITerminalPal:
         command = parts[0].lower()
         args = parts[1:] if len(parts) > 1 else []
 
-        if command in self.commands:
-            try:
-                # Check if command is async
+        try:
+            if command in self.commands:
+                # Execute registered command
                 if asyncio.iscoroutinefunction(self.commands[command]):
                     await self.commands[command](args)
                 else:
                     self.commands[command](args)
-            except Exception as e:
-                error_msg = f"Command '{command}' failed: {str(e)}"
-                self.error_log.append(error_msg)
-                console.print(f"[red]❌ {error_msg}[/]")
-                logger.error(f"Command error: {e}", exc_info=True)
-        elif command.startswith('/'):
-            console.print(f"[red]❌ Unknown command: {command}[/]")
-            console.print("[yellow]💡 Type '/help' for all commands or '/nav' for navigation[/]")
-        else:
-            # Treat as AI query
-            await self.ask_ai_enhanced(parts)
+
+            elif command.startswith('/'):
+                # Unknown command handler
+                console.print(f"[bold red]❌ Unknown command: {command}[/]")
+                # Suggest closest match could be implemented here using difflib
+                matches = difflib.get_close_matches(command, self.commands.keys(), n=1, cutoff=0.6)
+                if matches:
+                    console.print(f"[grey50]Did you mean [bold cyan]{matches[0]}[/]?")
+                else:
+                    console.print("[grey50]Type [bold cyan]/help[/] for a list of commands.[/]")
+
+            else:
+                # Default to AI query
+                await self.ask_ai_enhanced(parts)
+
+        except KeyboardInterrupt:
+            console.print("\n[bold gold1]⚠️ Operation Cancelled[/]")
+        except Exception as e:
+            # Global exception handler
+            error_id = int(time.time())
+            error_msg = f"Error {error_id}: {str(e)}"
+            self.error_log.append(error_msg)
+
+            console.print(Panel(
+                f"[bold red]💥 An unexpected error occurred[/]\n"
+                f"[white]{str(e)}[/]\n\n"
+                f"[grey50]Error ID: {error_id} | Check logs for details[/]",
+                title="System Error",
+                border_style="red"
+            ))
+            logger.error(f"Command error {error_id}: {e}", exc_info=True)
 
     def run(self):
         """Enhanced main application loop"""
@@ -4968,19 +4953,20 @@ class AITerminalPal:
                 if self.ai_provider:
                     provider_info = f"{self.ai_provider.name}:{self.ai_provider.model}"
 
-                # Create elegant prompt
-                primary_color = self.theme_manager.get_color('primary')
-                secondary_color = self.theme_manager.get_color('secondary')
-                accent_color = self.theme_manager.get_color('accent')
+                # Create sleek Cyber Blue prompt
+                # Format: ➜ ~
 
-                prompt_line = (
-                    f"{primary_color}┌─[{secondary_color}AI-Pal{primary_color}]─"
-                    f"[{accent_color}v{self.version}{primary_color}]─"
-                    f"[{secondary_color}{provider_info}{primary_color}]"
-                )
-                console.print(f"{prompt_line}{Style.RESET_ALL}")
+                # We use rich to print the prompt, but input() handles the actual input.
+                # To make it look seamless, we print the prompt then use input with empty prompt.
 
-                user_input = input(f"{primary_color}└─$ {Style.RESET_ALL}").strip()
+                cwd = Path.cwd().name
+                if cwd == os.path.basename(str(Path.home())):
+                    cwd = "~"
+
+                prompt_text = f"[bold deep_sky_blue1]➜[/] [cyan1]{cwd}[/] "
+                console.print(prompt_text, end="")
+
+                user_input = input().strip()
 
                 if not user_input:
                     continue
@@ -4990,7 +4976,7 @@ class AITerminalPal:
                 console.print()  # Add spacing
 
             except KeyboardInterrupt:
-                console.print(f"\n{self.theme_manager.get_color('warning')}💡 Use '/exit' to quit gracefully{Style.RESET_ALL}")
+                console.print(f"\n{self.theme_manager.get_color('warning')}💡 Use '/exit' to quit gracefully[/]")
             except EOFError:
                 break
             except Exception as e:
