@@ -30,7 +30,7 @@ import json
 import re
 import asyncio
 from typing import List, Dict
-import google.generativeai as genai
+# import google.generativeai as genai # Lazy loaded
 
 # Core dependencies with error handling
 try:
@@ -57,7 +57,7 @@ try:
     # import PyPDF2
     # import pandas as pd
     # from reportlab...
-    import tiktoken
+    # import tiktoken # Lazy loaded if needed
 except ImportError as e:
     print(f"❌ Missing dependency: {e}")
     print("📦 Install with: pip install colorama rich requests pyperclip psutil pillow PyPDF2 pandas reportlab tiktoken")
@@ -217,6 +217,7 @@ class GeminiProvider(AIProvider):
     def _initialize_client(self):
         """Initialize Gemini client with proper error handling"""
         try:
+            import google.generativeai as genai
             genai.configure(api_key=self.api_key)
             self.client = genai.GenerativeModel(self.model)
             return True
@@ -232,6 +233,8 @@ class GeminiProvider(AIProvider):
     async def query(self, prompt: str, context: Optional[str] = None,
                    temperature: float = 0.4, max_tokens: int = 4000) -> AIResponse:
         """Query Gemini with proper error handling"""
+        import google.generativeai as genai
+
         if not self.client:
             # Try to reinitialize
             if not self._initialize_client():
@@ -886,6 +889,22 @@ class AITerminalPal:
         except Exception as e:
             logger.error(f"Config loading error: {e}")
             self.config = default_config
+
+        # Auto-initialize provider from config if available
+        try:
+            current_provider = self.config.get("current_provider")
+            if current_provider and current_provider in self.available_providers:
+                provider_config = self.config.get("providers", {}).get(current_provider, {})
+                api_key = provider_config.get("api_key")
+                model = provider_config.get("model")
+
+                # For Ollama, api_key can be empty. For others, it must exist.
+                if (api_key or current_provider == "Ollama") and model:
+                    provider_class = self.available_providers[current_provider]["class"]
+                    self.ai_provider = provider_class(api_key, model)
+                    # console.print(f"[grey50]Auto-connected to {current_provider}[/]")
+        except Exception as e:
+            logger.error(f"Failed to auto-initialize provider: {e}")
 
         self.save_config()
 
