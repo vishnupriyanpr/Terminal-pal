@@ -20,6 +20,7 @@ import mimetypes
 import logging
 import re
 import math
+import difflib
 from pathlib import Path
 from typing import Optional, Dict, List, Any, Union
 from dataclasses import dataclass, field
@@ -2096,10 +2097,53 @@ class AITerminalPal:
             return False
 
     def configure_settings(self, args):
-        console.print("[yellow]⚠️ Advanced settings configuration coming in next update![/]")
+        """Configure AI settings interactively"""
+        console.print("[cyan]⚙️ Configuration[/]")
+
+        # Temp
+        try:
+            temp = FloatPrompt.ask("Enter temperature (0.0 - 1.0)", default=self.config.get('temperature', 0.7))
+            self.config['temperature'] = temp
+        except:
+            pass
+
+        # Max tokens
+        try:
+            tokens = IntPrompt.ask("Enter max tokens", default=self.config.get('max_tokens', 4000))
+            self.config['max_tokens'] = tokens
+        except:
+            pass
+
+        self.save_config()
+        console.print("[green]✅ Settings saved[/]")
 
     def switch_provider(self, args):
-        console.print("[yellow]⚠️ Provider switching interface coming in next update![/]")
+        """Quickly switch active provider"""
+        # Re-use setup logic but simpler
+        self.display_provider_selection()
+        provider_list = list(self.available_providers.keys())
+
+        try:
+            choice = IntPrompt.ask("Select new provider", choices=[str(i) for i in range(1, len(provider_list) + 1)])
+            selected_provider = provider_list[choice - 1]
+
+            # Check if key exists
+            if self.config.get("providers", {}).get(selected_provider, {}).get("api_key") or selected_provider == "Ollama":
+                # Switch
+                self.config["current_provider"] = selected_provider
+                # Re-init
+                provider_class = self.available_providers[selected_provider]["class"]
+                api_key = self.config["providers"][selected_provider].get("api_key", "")
+                model = self.config["providers"][selected_provider].get("model", "default")
+                self.ai_provider = provider_class(api_key, model)
+                self.save_config()
+                console.print(f"[green]✅ Switched to {selected_provider}[/]")
+            else:
+                console.print(f"[yellow]⚠️ {selected_provider} not configured. Running setup...[/]")
+                asyncio.run(self.setup_provider_models(selected_provider))
+
+        except Exception as e:
+            console.print(f"[red]❌ Switch failed: {str(e)}[/]")
 
     def change_theme(self, args):
         if args and args[0] in self.theme_manager.themes:
@@ -2112,16 +2156,66 @@ class AITerminalPal:
             console.print(f"[yellow]Available themes: {', '.join(self.theme_manager.themes.keys())}[/]")
 
     def customize_interface(self, args):
-        console.print("[yellow]⚠️ Interface customization coming in next update![/]")
+        """Customize interface settings"""
+        console.print("[cyan]🎨 Interface Customization[/]")
+
+        # Auto-copy
+        auto_copy = Confirm.ask("Enable auto-copy to clipboard?", default=self.config.get('auto_copy', True))
+        self.config['auto_copy'] = auto_copy
+
+        # Auto-save
+        auto_save = Confirm.ask("Enable auto-save session?", default=self.config.get('auto_save', True))
+        self.config['auto_save'] = auto_save
+
+        # Context awareness
+        context = Confirm.ask("Enable context awareness?", default=self.config.get('context_awareness', True))
+        self.config['context_awareness'] = context
+
+        self.save_config()
+        console.print("[green]✅ Customization saved[/]")
 
     def quick_start_guide(self, args):
-        console.print("[yellow]⚠️ Interactive quick start guide coming in next update![/]")
+        """Show quick start guide"""
+        guide = """
+# 🚀 Quick Start Guide
+
+1. **Setup**: Run `/setup` to configure your AI provider (OpenAI, Gemini, Ollama, etc.)
+2. **Ask**: Use `/ask <question>` for general queries.
+   - Example: `/ask How do I merge dictionaries in Python?`
+3. **Chat**: Enter `/chat` for a continuous conversation.
+4. **Context**: Use `@filename` to give the AI access to files.
+   - Example: `/ask @app.py Explain this code`
+5. **Generate**: Use `/generate` to create code.
+   - Example: `/generate A Python script to scrape a website`
+6. **Files**: Use `/read`, `/write`, `/edit` to manage files.
+7. **Project**: Use `/scan` and `/tree` to understand your codebase.
+        """
+        console.print(Markdown(guide))
 
     def show_pro_tips(self, args):
-        console.print("[yellow]⚠️ Pro tips system coming in next update![/]")
+        """Show pro tips"""
+        tips = """
+# 💡 Pro Tips
+
+* **Chain Commands**: You can use `;` to chain commands (not implemented yet, but good practice).
+* **Ollama**: Run local models for free without internet.
+* **Auto-Fix**: Use `/debug` on a file and say "yes" to fixes.
+* **Refactoring**: Use `/refactor` to clean up messy code.
+* **Backup**: Always run `/backup` before letting AI edit your files.
+* **Export**: Use `/export` to save your chat history for later reference.
+        """
+        console.print(Markdown(tips))
 
     def show_shortcuts(self, args):
-        console.print("[yellow]⚠️ Shortcuts reference coming in next update![/]")
+        """Show keyboard shortcuts"""
+        shortcuts = """
+# ⌨️ Shortcuts
+
+* **Ctrl+C**: Interrupt/Cancel current operation
+* **Ctrl+D**: Exit application (EOF)
+* **Up/Down**: Navigate command history
+        """
+        console.print(Markdown(shortcuts))
 
     async def start_enhanced_chat(self, args):
         """Interactive chat mode with history"""
@@ -2525,8 +2619,161 @@ class AITerminalPal:
         return None
 
 
-    def generate_code(self, args):
-        console.print("[yellow]⚠️ Code generation feature coming in next update![/]")
+    async def process_ai_task(self, args, task_type: str, system_prompt_template: str):
+        """Generic handler for AI tasks"""
+        if not self.ai_provider:
+            console.print("[red]❌ No AI provider configured. Run /setup first[/]")
+            return
+
+        if not args:
+            console.print(f"[yellow]💡 Usage: /{task_type} <description or filename>[/]")
+            return
+
+        input_text = " ".join(args)
+        is_file = len(args) == 1 and os.path.exists(args[0])
+
+        content = input_text
+        if is_file:
+            try:
+                with open(args[0], 'r', encoding='utf-8') as f:
+                    content = f.read()
+                console.print(f"[cyan]📄 Processing file: {args[0]}[/]")
+            except Exception as e:
+                console.print(f"[red]❌ Error reading file: {str(e)}[/]")
+                return
+
+        # Format prompt
+        full_prompt = system_prompt_template.format(content=content)
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            transient=True
+        ) as progress:
+            progress.add_task(f"🤖 {task_type.title()} in progress...", total=None)
+
+            try:
+                response = await self.ai_provider.query(
+                    full_prompt,
+                    temperature=0.7
+                )
+
+                self.display_enhanced_ai_response(response, full_prompt)
+
+                # Auto-save logic for code generation
+                # Return the response for specialized handling by caller (like edit)
+                if task_type == "edit":
+                    return response
+
+                if task_type in ["generate", "translate", "optimize", "refactor", "test", "docs", "api", "security", "performance"]:
+                    code = self.extract_code_from_response(response.content)
+                    if code and Confirm.ask("\n💾 Save generated output to file?", default=True):
+                        default_name = f"generated_{task_type}_{int(time.time())}.txt"
+                        if is_file:
+                            base, ext = os.path.splitext(args[0])
+                            default_name = f"{base}_{task_type}{ext}"
+
+                        self.save_code_interactively(code, "python") # Defaulting to python for highlighting
+
+                return response
+
+            except Exception as e:
+                console.print(f"[red]❌ Error: {str(e)}[/]")
+
+    async def generate_code(self, args):
+        """Generate code from description"""
+        await self.process_ai_task(
+            args,
+            "generate",
+            "Generate high-quality, efficient code based on this description:\n\n{content}\n\nInclude comments and explanation."
+        )
+
+    async def translate_code(self, args):
+        """Translate code to another language"""
+        if len(args) < 2:
+            console.print("[yellow]💡 Usage: /translate <filename> <target_language>[/]")
+            return
+
+        target_lang = args[-1]
+        source_args = args[:-1]
+
+        await self.process_ai_task(
+            source_args,
+            "translate",
+            f"Translate the following code to {target_lang}. Maintain logic and comments:\n\n{{content}}"
+        )
+
+    async def optimize_code(self, args):
+        """Optimize code for performance and readability"""
+        await self.process_ai_task(
+            args,
+            "optimize",
+            "Optimize the following code for performance (time/space complexity) and readability. Explain changes:\n\n{content}"
+        )
+
+    async def brainstorm_session(self, args):
+        """Brainstorm ideas"""
+        await self.process_ai_task(
+            args,
+            "brainstorm",
+            "Brainstorm creative and practical ideas for: {content}. List pros/cons if applicable."
+        )
+
+    async def refactor_code(self, args): # Renamed from refactor_project to match pattern, need to update mapping
+        """Refactor code"""
+        await self.process_ai_task(
+            args,
+            "refactor",
+            "Refactor this code to improve structure, remove duplication, and apply design patterns:\n\n{content}"
+        )
+
+    async def generate_tests(self, args):
+        """Generate unit tests"""
+        await self.process_ai_task(
+            args,
+            "test",
+            "Generate comprehensive unit tests for this code using standard testing frameworks (pytest/junit):\n\n{content}"
+        )
+
+    async def generate_documentation(self, args):
+        """Generate documentation"""
+        await self.process_ai_task(
+            args,
+            "docs",
+            "Generate comprehensive documentation (Markdown/Docstrings) for this code:\n\n{content}"
+        )
+
+    async def api_tools(self, args):
+        """Generate API docs or tests"""
+        await self.process_ai_task(
+            args,
+            "api",
+            "Analyze this API code/definition and generate usage examples and test cases:\n\n{content}"
+        )
+
+    async def security_analysis(self, args):
+        """Analyze for security vulnerabilities"""
+        await self.process_ai_task(
+            args,
+            "security",
+            "Analyze this code for security vulnerabilities (OWASP Top 10, injection, auth issues). Suggest fixes:\n\n{content}"
+        )
+
+    async def performance_analysis(self, args):
+        """Analyze for performance bottlenecks"""
+        await self.process_ai_task(
+            args,
+            "performance",
+            "Analyze this code for performance bottlenecks. Identify slow operations and suggest optimizations:\n\n{content}"
+        )
+
+    async def analyze_project(self, args):
+        """Analyze architecture"""
+        await self.process_ai_task(
+            args,
+            "analyze",
+            "Analyze the architecture, logic flow, and patterns in this code. Provide a high-level summary:\n\n{content}"
+        )
 
     async def improve_code(self, args):
         """AI-powered code improvement with optimization suggestions"""
@@ -2921,14 +3168,6 @@ class AITerminalPal:
 
 
 
-    def translate_code(self, args):
-        console.print("[yellow]⚠️ Code translation feature coming in next update![/]")
-
-    def optimize_code(self, args):
-        console.print("[yellow]⚠️ Code optimization feature coming in next update![/]")
-
-    def brainstorm_session(self, args):
-        console.print("[yellow]⚠️ Brainstorming session feature coming in next update![/]")
 
     # Continue with placeholder implementations for all remaining methods...
 
@@ -3333,17 +3572,125 @@ class AITerminalPal:
         except Exception as e:
             console.print(f"[red]❌ Error writing file: {str(e)}[/]")
 
-    def edit_with_ai(self, args):
-        console.print("[yellow]⚠️ AI-powered editing coming in next update![/]")
+    async def edit_with_ai(self, args):
+        """AI-powered file editing"""
+        if not args:
+            console.print("[yellow]💡 Usage: /edit <filename> [instruction][/]")
+            return
+
+        filename = args[0]
+        instruction = " ".join(args[1:]) if len(args) > 1 else Prompt.ask("Enter edit instruction")
+
+        if not os.path.exists(filename):
+            console.print(f"[red]❌ File not found: {filename}[/]")
+            return
+
+        with open(filename, 'r') as f:
+            content = f.read()
+
+        response = await self.process_ai_task(
+            [filename],
+            "edit",
+            f"Edit this file according to instruction: '{instruction}'. Return the FULL updated file content:\n\n{{content}}"
+        )
+
+        if response:
+            edited_content = self.extract_code_from_response(response.content)
+            if edited_content and Confirm.ask(f"\n💾 Overwrite {filename} with edited content?", default=False):
+                # Create backup first
+                self.backup_file([filename])
+
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(edited_content)
+                console.print(f"[green]✅ {filename} updated successfully[/]")
 
     def backup_file(self, args):
-        console.print("[yellow]⚠️ File backup feature coming in next update![/]")
+        """Create a backup of a file"""
+        if not args:
+            console.print("[yellow]💡 Usage: /backup <filename>[/]")
+            return
+
+        filename = args[0]
+        if not os.path.exists(filename):
+            console.print(f"[red]❌ File not found: {filename}[/]")
+            return
+
+        backup_dir = self.config_dir / "backups"
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_name = f"{os.path.basename(filename)}.{timestamp}.bak"
+        backup_path = backup_dir / backup_name
+
+        try:
+            shutil.copy2(filename, backup_path)
+            console.print(f"[green]✅ Backup created: {backup_name}[/]")
+            console.print(f"[grey50]Location: {backup_path}[/]")
+        except Exception as e:
+            console.print(f"[red]❌ Backup failed: {str(e)}[/]")
 
     def restore_file(self, args):
-        console.print("[yellow]⚠️ File restore feature coming in next update![/]")
+        """Restore a file from backup"""
+        backup_dir = self.config_dir / "backups"
+        backups = sorted(list(backup_dir.glob("*.bak")), key=os.path.getmtime, reverse=True)
+
+        if not backups:
+            console.print("[yellow]⚠️ No backups found[/]")
+            return
+
+        console.print("[cyan]📦 Available Backups:[/]")
+        for i, backup in enumerate(backups[:10], 1): # Show last 10
+            console.print(f"{i}. {backup.name} ([grey50]{datetime.datetime.fromtimestamp(backup.stat().st_mtime).strftime('%Y-%m-%d %H:%M')}[/])")
+
+        try:
+            choice = IntPrompt.ask("Select backup to restore", choices=[str(i) for i in range(1, len(backups[:10]) + 1)])
+            selected_backup = backups[choice - 1]
+
+            # Extract original filename (remove timestamp and .bak)
+            # Assumption: format is filename.timestamp.bak
+            original_name = ".".join(selected_backup.name.split('.')[:-2])
+
+            if Confirm.ask(f"⚠️ Restore {selected_backup.name} to {original_name}? (Overwrites current file)", default=False):
+                shutil.copy2(selected_backup, original_name)
+                console.print(f"[green]✅ Restored {original_name}[/]")
+
+        except Exception as e:
+            console.print(f"[red]❌ Restore failed: {str(e)}[/]")
 
     def compare_files(self, args):
-        console.print("[yellow]⚠️ File comparison feature coming in next update![/]")
+        """Compare two files"""
+        if len(args) < 2:
+            console.print("[yellow]💡 Usage: /compare <file1> <file2>[/]")
+            return
+
+        f1, f2 = args[0], args[1]
+        if not (os.path.exists(f1) and os.path.exists(f2)):
+            console.print("[red]❌ One or both files not found[/]")
+            return
+
+        try:
+            with open(f1, 'r') as file1, open(f2, 'r') as file2:
+                f1_lines = file1.readlines()
+                f2_lines = file2.readlines()
+
+            import difflib
+            diff = difflib.unified_diff(
+                f1_lines, f2_lines,
+                fromfile=f1, tofile=f2,
+                lineterm=''
+            )
+
+            diff_text = '\n'.join(list(diff))
+
+            if not diff_text:
+                console.print("[green]✅ Files are identical[/]")
+            else:
+                console.print(Panel(
+                    Syntax(diff_text, "diff", theme="monokai"),
+                    title="🔍 File Comparison",
+                    border_style="blue"
+                ))
+
+        except Exception as e:
+            console.print(f"[red]❌ Comparison failed: {str(e)}[/]")
 
     def scan_project_enhanced(self, args):
         """Analyze project structure and stats"""
@@ -3375,14 +3722,59 @@ class AITerminalPal:
         except Exception as e:
             console.print(f"[red]❌ Scan failed: {str(e)}[/]")
 
-    def analyze_project(self, args):
-        console.print("[yellow]⚠️ Project analysis feature coming in next update![/]")
 
     def analyze_dependencies(self, args):
-        console.print("[yellow]⚠️ Dependency analysis coming in next update![/]")
+        """Analyze project dependencies"""
+        files = ['requirements.txt', 'package.json', 'Gemfile', 'go.mod', 'Cargo.toml', 'pom.xml']
+        found = False
+
+        for f in files:
+            if os.path.exists(f):
+                found = True
+                console.print(f"[cyan]📦 Analyzing dependencies in {f}...[/]")
+                with open(f, 'r') as file:
+                    content = file.read()
+
+                # Ask AI for analysis
+                asyncio.run(self.process_ai_task(
+                    [f],
+                    "deps",
+                    "Analyze these dependencies. List outdated packages (if obvious), security risks, and suggest updates:\n\n{content}"
+                ))
+
+        if not found:
+            console.print("[yellow]⚠️ No dependency files found (requirements.txt, package.json, etc.)[/]")
 
     def project_metrics(self, args):
-        console.print("[yellow]⚠️ Project metrics feature coming in next update![/]")
+        """Calculate and display project metrics"""
+        console.print("[cyan]📊 Calculating metrics...[/]")
+
+        total_lines = 0
+        file_counts = {}
+
+        for root, dirs, files in os.walk(self.current_project_path):
+            if any(p in root for p in self.project_integrator.ignore_patterns):
+                continue
+
+            for file in files:
+                ext = os.path.splitext(file)[1]
+                if ext in self.project_integrator.supported_extensions:
+                    file_counts[ext] = file_counts.get(ext, 0) + 1
+                    try:
+                        with open(os.path.join(root, file), 'r', encoding='utf-8', errors='ignore') as f:
+                            total_lines += sum(1 for _ in f)
+                    except:
+                        pass
+
+        table = Table(title="📈 Project Metrics", border_style="green")
+        table.add_column("Language/Type", style="cyan")
+        table.add_column("Files", style="yellow")
+
+        for ext, count in sorted(file_counts.items(), key=lambda x: x[1], reverse=True):
+            table.add_row(ext, str(count))
+
+        console.print(table)
+        console.print(f"\n[bold]Total Lines of Code: {total_lines:,}[/]")
 
     def display_project_tree(self, args):
         """Display project file structure using Tree"""
@@ -3439,10 +3831,50 @@ class AITerminalPal:
         console.print(root_tree)
 
     def search_project(self, args):
-        console.print("[yellow]⚠️ Project search feature coming in next update![/]")
+        """Search text in project files"""
+        if not args:
+            console.print("[yellow]💡 Usage: /search <term>[/]")
+            return
 
-    def refactor_project(self, args):
-        console.print("[yellow]⚠️ Project refactoring coming in next update![/]")
+        term = args[0]
+        matches = []
+
+        console.print(f"[cyan]🔍 Searching for '{term}'...[/]")
+
+        for root, dirs, files in os.walk(self.current_project_path):
+            if any(p in root for p in self.project_integrator.ignore_patterns):
+                continue
+
+            for file in files:
+                ext = os.path.splitext(file)[1]
+                if ext in self.project_integrator.supported_extensions:
+                    path = os.path.join(root, file)
+                    try:
+                        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                            for i, line in enumerate(f, 1):
+                                if term in line:
+                                    matches.append((path, i, line.strip()))
+                    except:
+                        pass
+
+        if matches:
+            table = Table(title=f"Search Results: {term}", border_style="blue")
+            table.add_column("File", style="cyan")
+            table.add_column("Line", style="yellow")
+            table.add_column("Content", style="white")
+
+            for path, line_num, content in matches[:20]: # Limit matches
+                rel_path = os.path.relpath(path, self.current_project_path)
+                table.add_row(rel_path, str(line_num), content[:50] + "..." if len(content)>50 else content)
+
+            console.print(table)
+            if len(matches) > 20:
+                console.print(f"[grey50]... and {len(matches)-20} more matches[/]")
+        else:
+            console.print("[yellow]❌ No matches found[/]")
+
+    def refactor_project(self, args): # Alias to refactor_code
+        asyncio.run(self.refactor_code(args))
 
     async def debug_with_ai(self, args):
         """AI-powered code debugging with comprehensive error analysis"""
@@ -3763,8 +4195,6 @@ class AITerminalPal:
         return code_blocks[0] if code_blocks else ""
 
 
-    def generate_tests(self, args):
-        console.print("[yellow]⚠️ Test generation feature coming in next update![/]")
 
     def lint_code(self, args):
         """Enhanced code linting with multiple tools and AI analysis"""
@@ -4172,31 +4602,134 @@ class AITerminalPal:
 
 
     def format_code(self, args):
-        console.print("[yellow]⚠️ Code formatting feature coming in next update![/]")
+        """Format code using available tools or AI"""
+        if not args:
+            console.print("[yellow]💡 Usage: /format <filename>[/]")
+            return
 
-    def generate_documentation(self, args):
-        console.print("[yellow]⚠️ Documentation generation coming in next update![/]")
+        filename = args[0]
+        if not os.path.exists(filename):
+            console.print(f"[red]❌ File not found: {filename}[/]")
+            return
 
-    def api_tools(self, args):
-        console.print("[yellow]⚠️ API tools feature coming in next update![/]")
+        # Try standard tools first
+        ext = os.path.splitext(filename)[1]
+        formatted = False
 
-    def security_analysis(self, args):
-        console.print("[yellow]⚠️ Security analysis coming in next update![/]")
+        if ext == '.py':
+            try:
+                subprocess.run(['black', filename], check=True, capture_output=True)
+                console.print(f"[green]✅ Formatted {filename} with Black[/]")
+                formatted = True
+            except:
+                try:
+                    subprocess.run(['autopep8', '--in-place', filename], check=True, capture_output=True)
+                    console.print(f"[green]✅ Formatted {filename} with autopep8[/]")
+                    formatted = True
+                except:
+                    pass
+        elif ext in ['.js', '.ts', '.css', '.html', '.json']:
+            try:
+                subprocess.run(['npx', 'prettier', '--write', filename], check=True, capture_output=True)
+                console.print(f"[green]✅ Formatted {filename} with Prettier[/]")
+                formatted = True
+            except:
+                pass
 
-    def performance_analysis(self, args):
-        console.print("[yellow]⚠️ Performance analysis coming in next update![/]")
+        if not formatted:
+            console.print("[cyan]🤖 Standard tools not found. Asking AI to format...[/]")
+            with open(filename, 'r') as f:
+                content = f.read()
+
+            asyncio.run(self.process_ai_task(
+                [filename],
+                "format",
+                "Format this code according to standard style guidelines. Return ONLY the formatted code:\n\n{content}"
+            ))
+
 
     def export_enhanced(self, args):
-        console.print("[yellow]⚠️ Enhanced export feature coming in next update![/]")
+        """Export session data to JSON/CSV"""
+        export_dir = self.config_dir / "exports"
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        format_type = args[0].lower() if args else "json"
+
+        if format_type == "csv":
+            filename = export_dir / f"session_{timestamp}.csv"
+            keys = self.session_log[0].keys() if self.session_log else []
+            with open(filename, 'w', newline='', encoding='utf-8') as f:
+                dict_writer = csv.DictWriter(f, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(self.session_log)
+        else:
+            filename = export_dir / f"session_{timestamp}.json"
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(self.session_log, f, indent=2, default=str)
+
+        console.print(f"[green]✅ Exported session to {filename}[/]")
 
     def generate_pdf_report(self, args):
-        console.print("[yellow]⚠️ PDF report generation coming in next update![/]")
+        """Generate PDF report of session"""
+        filename = f"report_{int(time.time())}.pdf"
+        c = canvas.Canvas(filename, pagesize=letter)
+        width, height = letter
+
+        c.drawString(100, height - 50, f"AI Terminal Pal Report - {datetime.datetime.now()}")
+        y = height - 80
+
+        for entry in self.session_log[-20:]: # Last 20 entries
+            if y < 50:
+                c.showPage()
+                y = height - 50
+
+            text = f"[{entry.get('timestamp', '')}] {entry.get('type', '')}: {entry.get('query', '')[:50]}..."
+            c.drawString(50, y, text)
+            y -= 20
+
+        c.save()
+        console.print(f"[green]✅ PDF Report generated: {filename}[/]")
 
     def generate_project_report(self, args):
-        console.print("[yellow]⚠️ Project report generation coming in next update![/]")
+        """Generate comprehensive project report"""
+        report_name = f"project_report_{int(time.time())}.md"
+
+        # Gather stats
+        files = self.project_integrator.scan_project()
+        total_files = sum(len(f) for f in files.values())
+
+        report = f"# Project Report: {os.path.basename(self.current_project_path)}\n\n"
+        report += f"**Date:** {datetime.datetime.now()}\n"
+        report += f"**Total Files:** {total_files}\n\n"
+
+        report += "## File Structure\n"
+        for cat, flist in files.items():
+            if flist:
+                report += f"### {cat.title()}\n"
+                for f in flist:
+                    report += f"- {f}\n"
+
+        with open(report_name, 'w', encoding='utf-8') as f:
+            f.write(report)
+
+        console.print(f"[green]✅ Project report saved to {report_name}[/]")
 
     def show_detailed_stats(self, args):
-        console.print("[yellow]⚠️ Detailed statistics coming in next update![/]")
+        """Show detailed usage statistics"""
+        table = Table(title="📊 Detailed Statistics", border_style="magenta")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="white")
+
+        stats = self.performance_stats
+        duration = datetime.datetime.now() - stats['session_start']
+
+        table.add_row("Total Queries", str(stats['total_queries']))
+        table.add_row("Total Tokens", f"{stats['total_tokens']:,}")
+        table.add_row("Avg Response Time", f"{stats['avg_response_time']:.2f}s")
+        table.add_row("Session Duration", str(duration).split('.')[0])
+        table.add_row("Estimated Cost", f"${stats['total_cost']:.4f}")
+
+        console.print(table)
 
     def show_enhanced_history(self, args):
         """Show session history with enhanced formatting"""
@@ -4230,7 +4763,26 @@ class AITerminalPal:
         console.print(f"[grey50]Total Queries: {len(self.session_log)}[/]")
 
     def show_logs(self, args):
-        console.print("[yellow]⚠️ Log viewer coming in next update![/]")
+        """Show application logs"""
+        log_file = 'ai_terminal_pal.log'
+        if not os.path.exists(log_file):
+            console.print("[yellow]📜 No logs found[/]")
+            return
+
+        try:
+            with open(log_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+
+            # Show last 50 lines by default
+            lines_to_show = lines[-50:]
+
+            console.print(Panel(
+                "".join(lines_to_show),
+                title=f"📜 System Logs ({len(lines_to_show)} lines)",
+                border_style="grey50"
+            ))
+        except Exception as e:
+            console.print(f"[red]❌ Error reading logs: {str(e)}[/]")
 
     def show_system_status(self, args):
         """Display system status and application state"""
@@ -4297,16 +4849,70 @@ class AITerminalPal:
             console.print("\n[green]✅ Monitor stopped[/]")
 
     def copy_to_clipboard(self, args):
-        console.print("[yellow]⚠️ Clipboard operations coming in next update![/]")
+        """Copy text to clipboard"""
+        if not args:
+            console.print("[yellow]💡 Usage: /copy <text>[/]")
+            return
+        text = " ".join(args)
+        try:
+            pyperclip.copy(text)
+            console.print("[green]✅ Copied to clipboard[/]")
+        except Exception as e:
+            console.print(f"[red]❌ Copy failed: {str(e)}[/]")
 
     def paste_from_clipboard(self, args):
-        console.print("[yellow]⚠️ Clipboard operations coming in next update![/]")
+        """Paste text from clipboard"""
+        try:
+            text = pyperclip.paste()
+            console.print(Panel(text, title="📋 Clipboard Content"))
+        except Exception as e:
+            console.print(f"[red]❌ Paste failed: {str(e)}[/]")
 
     def check_updates(self, args):
         console.print("[green]✅ You're running AI Terminal Pal v2.0 Supreme - Latest version![/]")
 
     def run_benchmarks(self, args):
-        console.print("[yellow]⚠️ Benchmarking feature coming in next update![/]")
+        """Run AI performance benchmarks"""
+        if not self.ai_provider:
+            console.print("[red]❌ No AI provider configured[/]")
+            return
+
+        console.print("[cyan]🚀 Starting Benchmark Suite...[/]")
+
+        benchmarks = [
+            ("Simple Math", "What is 2+2?"),
+            ("Creative Writing", "Write a haiku about coding."),
+            ("Code Generation", "Write a python function to check prime numbers.")
+        ]
+
+        results = []
+
+        table = Table(title="Benchmark Results", border_style="cyan")
+        table.add_column("Test Case", style="white")
+        table.add_column("Time (s)", style="yellow")
+        table.add_column("Tokens", style="green")
+        table.add_column("Speed (tok/s)", style="magenta")
+
+        for name, prompt in benchmarks:
+            console.print(f"[grey50]Running: {name}...[/]")
+            start = time.time()
+            try:
+                response = asyncio.run(self.ai_provider.query(prompt))
+                duration = time.time() - start
+
+                # Estimate tokens if not provided
+                tokens = response.tokens_used or len(response.content.split()) * 1.3
+                speed = tokens / duration if duration > 0 else 0
+
+                table.add_row(name, f"{duration:.2f}", f"{int(tokens)}", f"{speed:.1f}")
+                results.append(duration)
+            except Exception as e:
+                table.add_row(name, "FAILED", "-", "-")
+
+        console.print(table)
+        if results:
+            avg_time = sum(results) / len(results)
+            console.print(f"\n[bold green]✅ Benchmark Complete. Avg Latency: {avg_time:.2f}s[/]")
 
     def restart_app(self, args):
         console.print("[blue]🔄 Restarting AI Terminal Pal...[/]")
